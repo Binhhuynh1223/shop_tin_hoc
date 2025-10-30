@@ -2,7 +2,7 @@
 
 use App\Controllers\CartController;
 use App\Controllers\ProfileController;
-use App\Models\Cart;
+use App\Controllers\OrderController;
 
 $router->get('/', function () {
     require_once __DIR__ . '/../../app/Views/home.php';
@@ -91,4 +91,34 @@ $router->get('/profile', function () {
 $router->post('/profile/update', function () {
     $controller = new ProfileController();
     $controller->update();
+});
+
+// Checkout và Order
+$router->get('/checkout', function () {
+    $controller = new OrderController();
+    $controller->checkout();
+});
+$router->post('/order/create', function () {
+    $controller = new OrderController();
+    $controller->create();
+});
+$router->get('/payment/vnpay/return', function () {
+    $controller = new OrderController();
+    $controller->vnpayReturn();
+});
+$router->post('/payment/vnpay/ipn', function () {
+    $controller = new OrderController();
+    $controller->vnpayIpn();
+});
+$router->get('/order/success/(\d+)', function ($id) {
+    $controller = new OrderController();
+    $controller->success($id);
+});
+$router->get('/order/failure/(\d+)', function ($id) {
+    $controller = new OrderController();
+    $controller->failure($id);
+});
+$router->post('/order/cancel/(\d+)', function ($id) {
+    $controller = new OrderController();
+    $controller->cancelOrder($id);
 });

@@ -12,32 +12,31 @@ class CartController extends BaseController
     public function index($userId)
     {
         $cart = Cart::where('user_id', $userId)->with(['items.product'])->first();
-
         if (!$cart) {
             $cart = Cart::create(['user_id' => $userId]);
         }
-
         $this->render('cart', ['cart' => $cart]);
     }
-
     // Thêm sản phẩm vào giỏ
     public function addToCart($userId, $data)
     {
         $productId = $data['product_id'];
         $quantity = $data['quantity'] ?? 1;
-
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
         $product = Product::find($productId);
-
         if (!$product) {
             throw new \Exception('Sản phẩm không tồn tại');
         }
-
+        if ($product->stock < $quantity) {
+            throw new \Exception('Sản phẩm không đủ hàng');
+        }
         $item = CartItem::where('cart_id', $cart->cart_id)
             ->where('product_id', $productId)
             ->first();
-
         if ($item) {
+            if ($item->quantity + $quantity > $product->stock) {
+                throw new \Exception('Sản phẩm không đủ hàng');
+            }
             $item->quantity += $quantity;
             $item->save();
         } else {
@@ -48,20 +47,20 @@ class CartController extends BaseController
             ]);
         }
     }
-
     // Cập nhật số lượng
     public function updateQuantity($cartItemId)
     {
         $input = json_decode(file_get_contents('php://input'), true);
         $quantity = $input['quantity'] ?? 0;
-
         $item = CartItem::with('product')->find($cartItemId);
-
         if (!$item) {
             $this->jsonResponse(['success' => false, 'message' => 'Không tìm thấy sản phẩm trong giỏ'], 404);
             return;
         }
-
+        if ($quantity > 0 && $quantity > $item->product->stock) {
+            $this->jsonResponse(['success' => false, 'message' => 'Sản phẩm không đủ hàng'], 400);
+            return;
+        }
         if ($quantity <= 0) {
             $item->delete();
             $removed = true;
@@ -70,11 +69,9 @@ class CartController extends BaseController
             $item->save();
             $removed = false;
         }
-
         $cart = $item->cart;
         $cart->load('items.product');
         $total = $cart->total;
-
         $this->jsonResponse([
             'success' => true,
             'removed' => $removed,
@@ -87,7 +84,6 @@ class CartController extends BaseController
             'item_count' => $cart->items->count()
         ]);
     }
-
     // Xóa sản phẩm
     public function remove($cartItemId)
     {
@@ -96,20 +92,16 @@ class CartController extends BaseController
             $this->jsonResponse(['success' => false, 'message' => 'Không tìm thấy sản phẩm'], 404);
             return;
         }
-
         $item->delete();
-
         $cart = $item->cart;
         $cart->load('items.product');
         $total = $cart->total;
-
         $this->jsonResponse([
             'success' => true,
             'total' => $total,
             'item_count' => $cart->items->count()
         ]);
     }
-
     // Xóa toàn bộ giỏ
     public function clear($userId)
     {

@@ -2,12 +2,19 @@
 
 use App\Middleware\AuthMiddleware;
 use App\Models\User;
+use App\Models\Order;
 
 // Require authentication
 AuthMiddleware::requireAuth();
 
 $model = new User();
 $user = $model->find($_SESSION['user']['id']);
+
+// Lấy lịch sử đơn hàng, sắp xếp mới nhất lên trước
+$orders = Order::where('user_id', $_SESSION['user']['id'])
+    ->with('items.product')
+    ->orderBy('order_date', 'desc')
+    ->get();
 
 include __DIR__ . '/partials/header.php';
 ?>
@@ -109,6 +116,98 @@ include __DIR__ . '/partials/header.php';
             </div>
         </div>
     </section>
+
+    <section class="bg-white rounded-lg shadow-sm p-6 mt-8">
+        <h2 class="text-xl font-bold mb-6">Lịch sử đơn hàng</h2>
+
+        <div class="space-y-6">
+            <?php if ($orders->isEmpty()): ?>
+                <p class="text-gray-600">Bạn chưa có đơn hàng nào.</p>
+            <?php else: ?>
+                <?php foreach ($orders as $order): ?>
+                    <?php
+                    // Trạng thái đơn hàng
+                    $status = $order->status;
+
+                    switch ($status) {
+                        case 'pending':
+                            $statusText = 'Chờ thanh toán';
+                            $statusColorClass = 'bg-yellow-100 text-yellow-800';
+                            break;
+                        case 'processing':
+                            $statusText = 'Đang xử lý';
+                            $statusColorClass = 'bg-blue-100 text-blue-800';
+                            break;
+                        case 'completed':
+                            $statusText = 'Đã hoàn thành';
+                            $statusColorClass = 'bg-green-100 text-green-800';
+                            break;
+                        case 'cancelled':
+                            $statusText = 'Đã hủy';
+                            $statusColorClass = 'bg-red-100 text-red-800';
+                            break;
+                    }
+                    ?>
+
+                    <div class="border rounded-lg overflow-hidden shadow-md">
+
+                        <div class="bg-gray-50 p-4 border-b flex flex-col md:flex-row justify-between md:items-center gap-4">
+
+                            <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                                <div>
+                                    <p class="text-gray-500">Mã đơn hàng</p>
+                                    <p class="font-medium text-gray-900">#<?= $order->order_id ?></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Ngày đặt</p>
+                                    <p class="font-medium text-gray-900"><?= date('d/m/Y H:i', strtotime($order->order_date)) ?></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Tổng tiền</p>
+                                    <p class="font-medium text-red-600"><?= number_format($order->total_amount, 0, ',', '.') ?>₫</p>
+                                </div>
+                            </div>
+
+                            <div class="flex-shrink-0 flex flex-col items-start md:items-end gap-2">
+                                <span id="status-<?= $order->order_id ?>" class="px-3 py-1 text-sm font-medium rounded-full <?= $statusColorClass ?>">
+                                    <?= $statusText ?>
+                                </span>
+
+                                <?php if ($order->status === 'pending' || $order->status === 'processing'): ?>
+                                    <button
+                                        id="cancel-btn-<?= $order->order_id ?>"
+                                        onclick="cancelOrder(<?= $order->order_id ?>)"
+                                        class="px-3 py-1 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 focus-ring">
+                                        Hủy đơn
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+
+                        </div>
+
+                        <div class="p-4 space-y-4">
+                            <?php foreach ($order->items as $item): ?>
+                                <div class="flex items-center gap-4">
+                                    <img src="<?= htmlspecialchars($item->product->image_url ?? '') ?>"
+                                        alt="<?= htmlspecialchars($item->product->product_name ?? 'Sản phẩm') ?>"
+                                        class="w-16 h-16 object-cover rounded-md border">
+                                    <div class="flex-grow">
+                                        <p class="font-medium"><?= htmlspecialchars($item->product->product_name ?? 'Sản phẩm đã bị xóa') ?></p>
+                                        <p class="text-sm text-gray-600">Số lượng: <?= $item->quantity ?></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium"><?= number_format($item->price, 0, ',', '.') ?>₫</p>
+                                        <p class="text-sm text-gray-500">Subtotal: <?= number_format($item->subtotal, 0, ',', '.') ?>₫</p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </section>
 </main>
 
 <script>
@@ -126,6 +225,52 @@ include __DIR__ . '/partials/header.php';
             reader.readAsDataURL(file);
         }
     });
+
+    // Hàm hủy đơn hàng
+    function cancelOrder(orderId) {
+        if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) {
+            return;
+        }
+
+        const button = document.getElementById(`cancel-btn-${orderId}`);
+        button.disabled = true;
+        button.textContent = 'Đang hủy...';
+
+        fetch(`/order/cancel/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+
+                    // Cập nhật trạng thái
+                    const statusSpan = document.getElementById(`status-${orderId}`);
+                    statusSpan.textContent = 'Đã hủy';
+                    statusSpan.className = 'px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800';
+
+                    // Xóa nút hủy
+                    if (button) {
+                        button.remove();
+                    }
+                } else {
+                    alert('Lỗi: ' + data.message);
+                    // Hiện lại nút nếu hủy thất bại
+                    button.disabled = false;
+                    button.textContent = 'Hủy đơn';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Đã xảy ra lỗi kết nối. Vui lòng thử lại.');
+                // Hiện lại nút nếu có lỗi
+                button.disabled = false;
+                button.textContent = 'Hủy đơn';
+            });
+    }
 </script>
 
 <?php

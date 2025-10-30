@@ -4,7 +4,7 @@ use App\Models\Product;
 use App\Models\Service;
 
 $products = new Product();
-$pcproducts = $products->getByCategory('PC') ?? [];
+$desktopproducts = $products->getByCategory('Desktop') ?? [];
 $laptopproducts = $products->getByCategory('Laptop') ?? [];
 $serverproducts = $products->getByCategory('Server') ?? [];
 $routerproducts = $products->getByCategory('Router') ?? [];
@@ -69,17 +69,17 @@ $services = $services->getAllServices() ?? [];
                     // Get unique brands
                     $uniqueBrands = array_unique(array_column($brand, 'brand') ?? []);
                     ?>
-                    <!-- PC -->
+                    <!-- Desktop -->
                     <div class="relative group inline-block">
-                        <a href="/products/pc" class="hover:text-accent focus-ring inline-flex items-center" title="Xem tất cả sản phẩm">
-                            PC
+                        <a href="/products/desktop" class="hover:text-accent focus-ring inline-flex items-center" title="Xem tất cả sản phẩm">
+                            Desktop
                         </a>
                         <div class="absolute left-0 hidden group-hover:block top-[100%] w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                            <?php if (count($pcproducts) > 0): ?>
-                                <?php $pcBrands = array_unique(array_column($pcproducts, 'brand') ?? []); ?>
-                                <?php foreach ($pcBrands as $pcBrand): ?>
-                                    <a href="/products/pc/<?= htmlspecialchars($pcBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <?= htmlspecialchars($pcBrand ?? '') ?>
+                            <?php if (count($desktopproducts) > 0): ?>
+                                <?php $desktopBrands = array_unique(array_column($desktopproducts, 'brand') ?? []); ?>
+                                <?php foreach ($desktopBrands as $desktopBrand): ?>
+                                    <a href="/products/desktop/<?= htmlspecialchars($desktopBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <?= htmlspecialchars($desktopBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
                             <?php endif; ?>

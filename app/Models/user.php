@@ -9,8 +9,14 @@ require_once __DIR__ . '/../../PDO.php';
 class User extends Model
 {
     protected $table = 'users';
+    protected $primaryKey = 'id';
     protected $fillable = ['username', 'password', 'full_name', 'email', 'phone', 'address', 'role', 'avatar'];
 
+
+    public function findByUserid($userid)
+    {
+        return self::where('id', $userid)->first();
+    }
 
     public function findByUsername($username)
     {

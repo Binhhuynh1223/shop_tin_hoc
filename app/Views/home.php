@@ -14,7 +14,7 @@ include __DIR__ . '/partials/header.php';
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
         <div class="lg:col-span-2">
             <div class="rounded-2xl bg-gradient-to-r from-white via-slate-50 to-white p-14 shadow">
-                <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">PC, Laptop, thiết bị mạng chất lượng</h1>
+                <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">Desktop, Laptop, thiết bị mạng chất lượng</h1>
                 <p class="mt-4 text-slate-600">Sản phẩm chính hãng. Bảo hành rõ ràng. Dịch vụ cài đặt, sửa chữa nhanh chóng.</p>
                 <div class="mt-6 flex gap-3">
                     <a href="/products" class="inline-block px-5 py-3 rounded-md bg-accent text-white font-medium focus-ring">Xem sản phẩm</a>
