@@ -1,0 +1,176 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\Product;
+use App\Middleware\AuthMiddleware;
+
+class ProductController extends BaseController
+{
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new Product();
+    }
+
+    public function index()
+    {
+        $products = $this->model->getAll();
+        include __DIR__ . '/../Views/products.php';
+    }
+
+    public function getAll()
+    {
+        $data = $_GET;
+        $ok = $this->model->getAll($data);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($ok);
+    }
+
+    public function getById($id)
+    {
+        $ok = $this->model->get($id);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($ok);
+    }
+
+    /**
+     * Create a new product
+     * @return void
+     */
+    public function create()
+    {
+        try {
+            AuthMiddleware::requireAdmin();
+
+            $data = $_POST;
+            Product::validate($data);
+
+            // Handle image upload if present
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $data['image_url'] = $this->handleImageUpload($_FILES['image']);
+            }
+
+            $ok = $this->model->create($data);
+            $this->jsonResponse(['success' => true, 'message' => 'Tạo sản phẩm thành công']);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Show edit form for product (fallback for non-AJAX, nhưng khuyến nghị dùng AJAX cho modal)
+     * @param int $id
+     * @return void
+     */
+    public function edit($id)
+    {
+        try {
+            AuthMiddleware::requireAdmin();
+
+            $product = $this->model->find($id);
+            if (!$product) {
+                $this->jsonResponse(['success' => false, 'message' => 'Product not found'], 404);
+                return;
+            }
+
+            // Nếu là AJAX request, return JSON
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                $this->jsonResponse(['success' => true, 'data' => $product]);
+                return;
+            }
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update($id)
+    {
+        try {
+            AuthMiddleware::requireAdmin();
+
+            $product = $this->model->find($id);
+            if (!$product) {
+                throw new \Exception('Product not found');
+            }
+
+            $data = $_POST;
+            Product::validate($data);
+
+            // Handle image upload nếu có file mới
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $data['image_url'] = $this->handleImageUpload($_FILES['image']);
+            } else {
+                // Giữ image_url cũ nếu không upload mới
+                $data['image_url'] = $data['current_image_url'] ?? $product->image_url;
+            }
+
+            $updated = $this->model->updateRecord($id, $data);
+            if (!$updated) {
+                throw new \Exception('Could not update product');
+            }
+
+            $this->jsonResponse(['success' => true, 'message' => 'Cập nhật sản phẩm thành công']);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $product = $this->model->find($id);
+            if (!$product) {
+                $_SESSION['error'] = 'Product not found';
+                header('Location: /manager/products');
+                exit;
+            }
+
+            $deleted = $product->delete();
+            if ($deleted) {
+                $_SESSION['success'] = 'Product deleted successfully';
+            } else {
+                $_SESSION['error'] = 'Could not delete product';
+            }
+        } catch (\Exception $e) {
+            $_SESSION['error'] = 'Error occurred: ' . $e->getMessage();
+        }
+
+        header('Location: /manager/products');
+        exit;
+    }
+
+    /**
+     * Handle image upload
+     * @param array $file
+     * @return string
+     * @throws \Exception
+     */
+    private function handleImageUpload($file)
+    {
+        $targetDir = __DIR__ . "/../../public/images/products/";
+
+        // Create directory if it doesn't exist
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        // Validate file type
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!in_array($file['type'], $allowedTypes)) {
+            throw new \Exception('Chỉ chấp nhận file ảnh định dạng JPG, JPEG hoặc PNG');
+        }
+
+        // Nếu trùng tên file thì đổi tên
+        $filename = date('d-m-Y') . '_' . basename($file['name']);
+        $targetFile = $targetDir . $filename;
+
+        // Move uploaded file
+        if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
+            throw new \Exception('Không thể tải lên file ảnh');
+        }
+
+        return '/images/products/' . $filename;
+    }
+}
