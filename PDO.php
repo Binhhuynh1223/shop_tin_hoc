@@ -16,6 +16,3 @@ try {
 } catch (PDOException $e) {
     error_log("Connection failed: " . $e->getMessage());
 }
-
-$capsule->setAsGlobal();
-$capsule->bootEloquent();
