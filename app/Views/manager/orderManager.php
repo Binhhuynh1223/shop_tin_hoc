@@ -113,46 +113,6 @@
                 </div> <?php endforeach; ?>
         <?php endif; ?>
     </div>
-
-    <!-- Phân trang -->
-    <nav class="mt-8 flex justify-center items-center" aria-label="Pagination">
-        <?php
-        $currentPage = $paginationData['currentPage'];
-        $totalPages = $paginationData['totalPages'];
-        $filters = $paginationData['filters'];
-        function build_link($page, $filters)
-        {
-            $queryParams = $filters;
-            $queryParams['page'] = $page;
-            return '/manager/orders?' . http_build_query($queryParams);
-        }
-        ?>
-
-        <div class="flex items-center gap-2">
-            <a href="<?= ($currentPage > 1) ? build_link($currentPage - 1, $filters) : '#' ?>"
-                class="p-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 <?= ($currentPage <= 1) ? 'opacity-50 cursor-not-allowed' : '' ?>">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
-            </a>
-
-            <div class="flex items-center gap-2">
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="<?= build_link($i, $filters) ?>"
-                        class="px-4 py-2 text-sm font-medium rounded-md border <?= ($i == $currentPage) ? 'bg-indigo-600 text-white border-indigo-600' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50' ?>">
-                        <?= $i ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
-
-            <a href="<?= ($currentPage < $totalPages) ? build_link($currentPage + 1, $filters) : '#' ?>"
-                class="p-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 <?= ($currentPage >= $totalPages) ? 'opacity-50 cursor-not-allowed' : '' ?>">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-            </a>
-        </div>
-    </nav>
 </section>
 
 <script>
