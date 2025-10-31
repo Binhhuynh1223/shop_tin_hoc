@@ -25,9 +25,9 @@ $currentPage = $_SERVER['REQUEST_URI'];
                 include __DIR__ . '/../productManager.php';
             } elseif ($currentPage === '/manager/users') {
                 include __DIR__ . '/../userManager.php';
-            // elseif( $currentPage === 'orders') {
-            //     include __DIR__ . '/orders.php';
-        }
+            } elseif ($currentPage === '/manager/orders') {
+                include __DIR__ . '/../orderManager.php';
+            }
             ?>
         </main>
     </div>

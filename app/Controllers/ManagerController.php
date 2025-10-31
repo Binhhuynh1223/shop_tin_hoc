@@ -3,6 +3,7 @@
 namespace App\Controllers;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Order;
 
 class ManagerController
 {
@@ -26,16 +27,27 @@ class ManagerController
     private function getDashboardData()
     {
         $productModel = new Product();
-        $products = $productModel->all();
+        $userModel = new User();
+        $orderModel = new Order();
 
-        // Example data
+        // Lấy dữ liệu đơn hàng
+        $totalProducts = $productModel->all()->count();
+        $totalOrders = $orderModel->all()->count();
+        $totalUsers = $userModel->all()->count();
+        // Chỉ tính doanh thu từ các đơn hàng đã 'hoàn thành' (completed)
+        $totalRevenue = $orderModel->where('status', 'completed')->sum('total_amount');
+
+        // Dữ liệu biểu đồ
+        $chartLabels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'];
+        $chartData = [5000000, 7000000, 12000000, 9000000, 15000000, 20000000];
+
         return [
-            'totalProducts' => count($products),
-            'totalOrders' => 150,
-            'totalUsers' => 200,
-            'totalRevenue' => 50000000,
-            'chartLabels' => ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-            'chartData' => [5000000, 7000000, 12000000, 9000000, 15000000, 20000000]
+            'totalProducts' => $totalProducts,
+            'totalOrders' => $totalOrders,
+            'totalUsers' => $totalUsers,
+            'totalRevenue' => $totalRevenue,
+            'chartLabels' => $chartLabels,
+            'chartData' => $chartData
         ];
     }
 
@@ -62,8 +74,24 @@ class ManagerController
     {
         $this->checkAdminSession();
         $adminInfo = $this->getAdminInfo();
-        $users = new User();
-        $users = $users->all();
+
+        // Lấy user KÈM THEO số lượng đơn hàng và tổng tiền
+        $users = User::withCount('orders')
+            ->withSum('orders as total_spent', 'total_amount')
+            ->get();
+
+        include __DIR__ . '/../Views/manager/layouts/admin.php';
+    }
+
+    public function orders()
+    {
+        $this->checkAdminSession();
+        $adminInfo = $this->getAdminInfo();
+
+        // Lấy đơn hàng KÈM THEO thông tin 'user' và 'items.product'
+        $orders = Order::with(['user', 'items.product'])
+            ->orderBy('order_date', 'desc')
+            ->get();
         include __DIR__ . '/../Views/manager/layouts/admin.php';
     }
 }

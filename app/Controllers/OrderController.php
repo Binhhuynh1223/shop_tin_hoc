@@ -175,11 +175,41 @@ class OrderController extends BaseController
         }
 
         try {
-            // Gọi hàm cancel() từ Model
+            // Hủy đơn hàng
             $order->cancel();
             $this->jsonResponse(['success' => true, 'message' => 'Hủy đơn hàng thành công.']);
         } catch (\Exception $e) {
             $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Chuyển trạng thái đơn hàng từ Processing -> Completed (Admin)
+     */
+    public function completeOrder($orderId)
+    {
+        try {
+            AuthMiddleware::requireAdmin();
+
+            $order = Order::find($orderId);
+            if (!$order) {
+                $this->jsonResponse(['success' => false, 'message' => 'Không tìm thấy đơn hàng'], 404);
+                return;
+            }
+
+            // Chỉ cho phép cập nhật khi đang 'processing'
+            if ($order->status !== 'processing') {
+                $this->jsonResponse(['success' => false, 'message' => 'Chỉ có thể hoàn thành đơn hàng đang "Xử lý".'], 400);
+                return;
+            }
+
+            // Cập nhật trạng thái
+            $order->status = 'completed';
+            $order->save();
+
+            $this->jsonResponse(['success' => true, 'message' => 'Đã cập nhật đơn hàng thành "Hoàn thành".']);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 }

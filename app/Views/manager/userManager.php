@@ -6,6 +6,19 @@
             + Thêm người dùng
         </button>
     </header>
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+            <?= $_SESSION['success'] ?>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+            <?= $_SESSION['error'] ?>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
     <!-- Modal thêm người dùng -->
     <?php include __DIR__ . '/components/add_user.php'; ?>
     <!-- Modal sửa người dùng -->
@@ -17,23 +30,46 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
-                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mật khẩu</th>
-                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                         <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avatar</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên đăng nhập</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Họ tên</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Liên hệ</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mật khẩu</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vai trò</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn hàng</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng chi tiêu</th>
                         <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach ($users as $user): ?>
                         <tr class="hover:bg-gray-50 transition duration-150">
+
                             <td class="py-4 px-4 text-sm text-gray-900"><?= $user->id ?></td>
-                            <td class="py-4 px-4 text-sm font-medium text-gray-900"><?= htmlspecialchars($user->username) ?></td>
-                            <td class="py-4 px-4 text-sm text-gray-500"><?= htmlspecialchars($user->password) ?></td>
-                            <td class="py-4 px-4 text-sm text-gray-500"><?= htmlspecialchars($user->role) ?></td>
+
                             <td class="py-4 px-4">
-                                <img src="<?= $user->avatar ?>" alt="Avatar" class="w-12 h-12 object-cover rounded-md border border-gray-200">
+                                <img src="<?= $user->avatar ?>" alt="Avatar" class="w-10 h-10 object-cover rounded-full border border-gray-200">
                             </td>
+
+                            <td class="py-4 px-4 text-sm font-medium text-gray-900"><?= htmlspecialchars($user->username) ?></td>
+
+                            <td class="py-4 px-4 text-sm text-gray-500"><?= htmlspecialchars($user->full_name ?? 'N/A') ?></td>
+
+                            <td class="py-4 px-4 text-sm text-gray-500">
+                                <p><?= htmlspecialchars($user->email ?? 'N/A') ?></p>
+                                <p><?= htmlspecialchars($user->phone ?? 'N/A') ?></p>
+                            </td>
+
+                            <td class="py-4 px-4 text-sm text-gray-500 font-mono">********</td>
+
+                            <td class="py-4 px-4 text-sm text-gray-500"><?= htmlspecialchars($user->role) ?></td>
+
+                            <td class="py-4 px-4 text-sm text-gray-500 text-left"><?= $user->orders_count ?? 0 ?></td>
+
+                            <td class="py-4 px-4 text-sm font-medium text-indigo-600 text-left">
+                                <?= number_format($user->total_spent ?? 0) ?>₫
+                            </td>
+
                             <td class="py-4 px-4 text-center space-x-2">
                                 <button
                                     onclick="openEditUserModal(<?= $user->id ?>)"
@@ -66,17 +102,26 @@
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
-                } // Detect AJAX
+                }
             });
             const result = await response.json();
 
             if (result.success) {
                 const data = result.data;
                 document.getElementById('edit_username').value = data.username;
-                document.getElementById('edit_password').value = data.password;
-                document.getElementById('edit_role').value = data.role;
-                document.getElementById('edit_avatar').src = data.avatar;
 
+                // Sửa các thông tin cá nhân
+                document.getElementById('edit_full_name').value = data.full_name || '';
+                document.getElementById('edit_email').value = data.email || '';
+                document.getElementById('edit_phone').value = data.phone || '';
+                document.getElementById('edit_address').value = data.address || '';
+
+                // Không điền mật khẩu cũ, chỉ đổi mật khẩu mới.
+                document.getElementById('edit_new_password').value = '';
+
+                // Role and avatar
+                document.getElementById('edit_role').value = data.role;
+                document.getElementById('edit_avatar_preview').src = data.avatar;
                 document.getElementById('editUserModal').classList.remove('hidden');
             } else {
                 alert(result.message || 'Không thể tải dữ liệu người dùng');

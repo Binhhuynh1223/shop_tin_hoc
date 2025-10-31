@@ -6,6 +6,20 @@
             + Thêm sản phẩm
         </button>
     </header>
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+            <?= $_SESSION['success'] ?>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+            <?= $_SESSION['error'] ?>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
     <!-- Modal thêm sản phẩm -->
     <?php include __DIR__ . '/components/add_product.php'; ?>
     <!-- Modal sửa sản phẩm -->

@@ -3,6 +3,8 @@
 use App\Controllers\ManagerController;
 use App\Controllers\ProductController;
 use App\Controllers\UserController;
+use App\Controllers\OrderController;
+use App\Models\Order;
 use Illuminate\Database\Capsule\Manager;
 
 $router->mount('/manager', function () use ($router) {
@@ -64,4 +66,17 @@ $router->mount('/manager', function () use ($router) {
         $controller = new UserController();
         $controller->create();
     });
+
+    // Quản lý đơn hàng
+    $router->get('/orders', function () {
+        $controller = new ManagerController();
+        $controller->orders();
+    });
+
+    // Cập nhật trạng thái đơn hàng (processing -> completed)
+    $router->post('/orders/complete/(\d+)', function ($id) {
+        $controller = new OrderController();
+        $controller->completeOrder($id);
+    });
+
 });

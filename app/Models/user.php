@@ -45,4 +45,9 @@ class User extends Model
         if (!$user) return false;
         return $user->delete();
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
 }
