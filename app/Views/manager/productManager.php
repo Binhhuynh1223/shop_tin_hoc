@@ -69,6 +69,22 @@
             </table>
         </div>
     </div>
+
+    <!-- Pagination -->
+    <?php if (isset($productsTotalPages) && $productsTotalPages > 1): ?>
+        <div class="p-4 bg-white border-t flex items-center justify-between">
+            <div class="text-sm text-gray-600">Trang <?= $productsCurrentPage ?> / <?= $productsTotalPages ?></div>
+            <div class="space-x-2">
+                <?php if ($productsCurrentPage > 1): ?>
+                    <a href="/manager/products?page=<?= $productsCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+                <?php endif; ?>
+
+                <?php if ($productsCurrentPage < $productsTotalPages): ?>
+                    <a href="/manager/products?page=<?= $productsCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </section>
 </main>
 </div>

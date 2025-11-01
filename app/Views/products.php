@@ -2,9 +2,12 @@
 
 use App\Models\Product;
 
-$products = new Product();
+// Pagination settings
+$perPage = 12;
+$page = max(1, intval($_GET['page'] ?? 1));
 
-$query = $products;  // Bắt đầu từ tất cả sản phẩm
+$productsModel = new Product();
+$query = Product::query();
 
 if (isset($_GET['category']) && $_GET['category'] !== 'default') {
     $query = $query->where('category', $_GET['category']);
@@ -14,7 +17,13 @@ if (isset($_GET['brand'])) {
     $query = $query->where('brand', $_GET['brand']);
 }
 
-$products_home = $query->get();
+$totalProducts = $query->count();
+$products_home = $query->orderBy('created_at', 'desc')
+    ->offset(($page - 1) * $perPage)
+    ->limit($perPage)
+    ->get();
+
+$totalPages = (int) ceil($totalProducts / $perPage);
 ?>
 
 <?php include __DIR__ . '/partials/header.php'; ?>
@@ -27,7 +36,7 @@ $products_home = $query->get();
                 <select id="category" class="px-3 py-2 border rounded-md text-sm">
                     <option value="default">Tất cả danh mục</option>
                     <?php
-                    $categories = array_unique(array_column($products->toArray(), 'category'));
+                    $categories = array_unique(array_column((array) $productsModel->all()->toArray(), 'category'));
                     foreach ($categories as $category):
                     ?>
                         <option value="<?php echo htmlspecialchars($category); ?>" <?php echo isset($_GET['category']) && $_GET['category'] === $category ? 'selected' : ''; ?>>
@@ -76,6 +85,21 @@ $products_home = $query->get();
                 </article>
             <?php endforeach; ?>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+            <div class="mt-6 flex items-center justify-center space-x-2">
+                <?php if ($page > 1): ?>
+                    <a href="/products?page=<?= $page - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+                <?php endif; ?>
+
+                <div class="px-3 py-1 text-sm text-gray-600">Trang <?= $page ?> / <?= $totalPages ?></div>
+
+                <?php if ($page < $totalPages): ?>
+                    <a href="/products?page=<?= $page + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </section>
 </main>
 
@@ -85,11 +109,14 @@ $products_home = $query->get();
     // Filter products by category
     document.getElementById('category').addEventListener('change', function(e) {
         const category = e.target.value;
+        const searchParams = new URLSearchParams(window.location.search);
         if (category === 'default') {
-            window.location.href = '/products';
-        } else{
-            window.location.href = `/products/${category}`;
+            searchParams.delete('category');
+        } else {
+            searchParams.set('category', category);
         }
+        searchParams.delete('page'); // reset to first page on filter change
+        window.location.href = '/products' + (searchParams.toString() ? '?' + searchParams.toString() : '');
     });
 
     // Search products
@@ -108,21 +135,6 @@ $products_home = $query->get();
             }
         });
     });
-
-    // Filter products by category
-    function filterProducts(category) {
-        const products = document.querySelectorAll('#products article');
-
-        products.forEach(product => {
-            const productCategory = product.querySelector('p').previousElementSibling.textContent;
-
-            if (category === 'default' || productCategory === category) {
-                product.style.display = '';
-            } else {
-                product.style.display = 'none';
-            }
-        });
-    }
 
     function viewProduct(productId) {
         window.location.href = `/product/${productId}`;

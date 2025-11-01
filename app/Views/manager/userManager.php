@@ -87,6 +87,22 @@
             </table>
         </div>
     </div>
+
+    <!-- Pagination -->
+    <?php if (isset($usersTotalPages) && $usersTotalPages > 1): ?>
+        <div class="p-4 bg-white border-t flex items-center justify-between">
+            <div class="text-sm text-gray-600">Trang <?= $usersCurrentPage ?> / <?= $usersTotalPages ?></div>
+            <div class="space-x-2">
+                <?php if ($usersCurrentPage > 1): ?>
+                    <a href="/manager/users?page=<?= $usersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+                <?php endif; ?>
+
+                <?php if ($usersCurrentPage < $usersTotalPages): ?>
+                    <a href="/manager/users?page=<?= $usersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </section>
 </main>
 </div>

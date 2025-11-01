@@ -113,6 +113,22 @@
                 </div> <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <!-- Pagination -->
+    <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
+        <div class="p-4 bg-white border-t flex items-center justify-between mt-4">
+            <div class="text-sm text-gray-600">Trang <?= $ordersCurrentPage ?> / <?= $ordersTotalPages ?></div>
+            <div class="space-x-2">
+                <?php if ($ordersCurrentPage > 1): ?>
+                    <a href="/manager/orders?page=<?= $ordersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+                <?php endif; ?>
+
+                <?php if ($ordersCurrentPage < $ordersTotalPages): ?>
+                    <a href="/manager/orders?page=<?= $ordersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </section>
 
 <script>

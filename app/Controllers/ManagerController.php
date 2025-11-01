@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Order;
@@ -65,8 +66,22 @@ class ManagerController
     {
         $this->checkAdminSession();
         $adminInfo = $this->getAdminInfo();
-        $products = new Product();
-        $products = $products->all();
+
+        // Pagination settings
+        $perPage = 5;
+        $page = max(1, intval($_GET['page'] ?? 1));
+
+        // Build query and get totals
+        $query = Product::query();
+        $total = $query->count();
+        $products = $query->orderBy('created_at', 'desc')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->get();
+
+        $productsCurrentPage = $page;
+        $productsTotalPages = (int) ceil($total / $perPage);
+
         include __DIR__ . '/../Views/manager/layouts/admin.php';
     }
 
@@ -75,10 +90,21 @@ class ManagerController
         $this->checkAdminSession();
         $adminInfo = $this->getAdminInfo();
 
-        // Lấy user KÈM THEO số lượng đơn hàng và tổng tiền
-        $users = User::withCount('orders')
-            ->withSum('orders as total_spent', 'total_amount')
+        // Pagination settings
+        $perPage = 5;
+        $page = max(1, intval($_GET['page'] ?? 1));
+
+        $query = User::withCount('orders')
+            ->withSum('orders as total_spent', 'total_amount');
+
+        $total = $query->count();
+        $users = $query->orderBy('id', 'desc')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
             ->get();
+
+        $usersCurrentPage = $page;
+        $usersTotalPages = (int) ceil($total / $perPage);
 
         include __DIR__ . '/../Views/manager/layouts/admin.php';
     }
@@ -88,10 +114,21 @@ class ManagerController
         $this->checkAdminSession();
         $adminInfo = $this->getAdminInfo();
 
-        // Lấy đơn hàng KÈM THEO thông tin 'user' và 'items.product'
-        $orders = Order::with(['user', 'items.product'])
-            ->orderBy('order_date', 'desc')
+        // Pagination settings
+        $perPage = 5;
+        $page = max(1, intval($_GET['page'] ?? 1));
+
+        $query = Order::with(['user', 'items.product'])
+            ->orderBy('order_date', 'desc');
+
+        $total = $query->count();
+        $orders = $query->offset(($page - 1) * $perPage)
+            ->limit($perPage)
             ->get();
+
+        $ordersCurrentPage = $page;
+        $ordersTotalPages = (int) ceil($total / $perPage);
+
         include __DIR__ . '/../Views/manager/layouts/admin.php';
     }
 }
