@@ -7,6 +7,7 @@ $products = new Product();
 $desktopproducts = $products->getByCategory('Desktop') ?? [];
 $laptopproducts = $products->getByCategory('Laptop') ?? [];
 $serverproducts = $products->getByCategory('Server') ?? [];
+$softwareproducts = $products->getByCategory('Software') ?? [];
 $routerproducts = $products->getByCategory('Router') ?? [];
 
 
@@ -136,7 +137,21 @@ $services = $services->getAllServices() ?? [];
                     </div>
 
                     <!-- Phần mềm -->
-                    <a href="#" class="hover:text-accent focus-ring inline-flex items-center">Phần mềm</a>
+                    <div class="relative group inline-block">
+                        <a href="/products/software" class="hover:text-accent focus-ring inline-flex items-center" title="Xem tất cả sản phẩm">
+                            Phần mềm
+                        </a>
+                        <div class="absolute left-0 hidden group-hover:block top-[100%] w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                            <?php if (count($softwareproducts) > 0): ?>
+                                <?php $softwareBrands = array_unique(array_column($softwareproducts, 'brand') ?? []); ?>
+                                <?php foreach ($softwareBrands as $softwareBrand): ?>
+                                    <a href="/products/software/<?= htmlspecialchars($softwareBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <?= htmlspecialchars($softwareBrand ?? '') ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
 
                     <!-- Dịch vụ -->
                     <a href="#" class="hover:text-accent focus-ring inline-flex items-center">Dịch vụ</a>
