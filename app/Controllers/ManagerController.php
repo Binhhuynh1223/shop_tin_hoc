@@ -70,10 +70,16 @@ class ManagerController
         // Pagination settings
         $perPage = 5;
         $page = max(1, intval($_GET['page'] ?? 1));
+        $search = $_GET['search'] ?? null;
 
         // Build query and get totals
         $query = Product::query();
         $total = $query->count();
+
+        // Search
+        if ($search) {
+            $query->where('product_name', 'LIKE', '%' . $search . '%');
+        }
         $products = $query->orderBy('created_at', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -93,11 +99,21 @@ class ManagerController
         // Pagination settings
         $perPage = 5;
         $page = max(1, intval($_GET['page'] ?? 1));
+        $search = $_GET['search'] ?? null;
 
         $query = User::withCount('orders')
             ->withSum('orders as total_spent', 'total_amount');
 
         $total = $query->count();
+
+        // Search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'LIKE', '%' . $search . '%')
+                    ->orWhere('full_name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
         $users = $query->orderBy('id', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -117,9 +133,18 @@ class ManagerController
         // Pagination settings
         $perPage = 5;
         $page = max(1, intval($_GET['page'] ?? 1));
+        $search = $_GET['search'] ?? null;
 
         $query = Order::with(['user', 'items.product'])
             ->orderBy('order_date', 'desc');
+
+        // Search
+        if ($search) {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('username', 'LIKE', '%' . $search . '%')
+                    ->orWhere('full_name', 'LIKE', '%' . $search . '%');
+            });
+        }
 
         $total = $query->count();
         $orders = $query->offset(($page - 1) * $perPage)

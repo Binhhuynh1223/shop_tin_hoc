@@ -7,6 +7,19 @@
                 + Thêm sản phẩm
             </button>
         </header>
+
+        <!-- Tìm kiếm -->
+        <form method="GET" action="/manager/products" class="mb-4">
+            <div class="flex">
+                <input type="text" name="search" placeholder="Tìm theo tên sản phẩm..."
+                    class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value="<?= htmlspecialchars($search ?? '') ?>">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 whitespace-nowrap">
+                    Tìm kiếm
+                </button>
+            </div>
+        </form>
+
         <?php if (isset($_SESSION['success'])): ?>
             <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
                 <?= $_SESSION['success'] ?>
@@ -74,8 +87,9 @@
         <!-- Pagination -->
         <?php if (isset($productsTotalPages) && $productsTotalPages > 1): ?>
             <div class="mt-6 flex items-center justify-center space-x-2">
+                <?php $searchParam = isset($search) ? '&search=' . urlencode($search) : ''; ?>
                 <?php if ($productsCurrentPage > 1): ?>
-                    <a href="/manager/products?page=<?= $productsCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+                    <a href="/manager/products?page=<?= $productsCurrentPage - 1 ?><?= $searchParam ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
                 <?php else: ?>
                     <div class="px-3 py-1 bg-gray-200 rounded-md text-sm invisible">&laquo; Trước</div>
                 <?php endif; ?>
@@ -83,7 +97,7 @@
                 <div class="px-3 py-1 text-sm text-gray-600">Trang <?= $productsCurrentPage ?> / <?= $productsTotalPages ?></div>
 
                 <?php if ($productsCurrentPage < $productsTotalPages): ?>
-                    <a href="/manager/products?page=<?= $productsCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+                    <a href="/manager/products?page=<?= $productsCurrentPage + 1 ?><?= $searchParam ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
                 <?php else: ?>
                     <div class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm invisible">Tiếp &raquo;</div>
                 <?php endif; ?>

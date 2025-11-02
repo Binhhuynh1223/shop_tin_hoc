@@ -3,6 +3,18 @@
         <h2 class="text-xl font-semibold text-gray-900">Quản lý Đơn hàng</h2>
     </header>
 
+    <!-- Tìm kiếm -->
+    <form method="GET" action="/manager/orders" class="mb-4">
+        <div class="flex">
+            <input type="text" name="search" placeholder="Tìm theo tên đăng nhập hoặc họ tên khách hàng..."
+                class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value="<?= htmlspecialchars($search ?? '') ?>">
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 whitespace-nowrap">
+                Tìm kiếm
+            </button>
+        </div>
+    </form>
+
     <!-- Hiển thị các đơn hàng -->
     <div class="space-y-6">
 
@@ -74,7 +86,7 @@
                             <h4 class="text-lg font-semibold text-gray-800 mb-3">Sản phẩm</h4>
                             <div class="space-y-4 max-h-60 overflow-y-auto pr-2">
                                 <?php foreach ($order->items as $item): ?>
-                                    <div class="flex items-center gap-4 border-b pb-2 last:border-b-0">
+                                    <div class="flex items-center gap-4 border-b pb-2 last:border-b-0 bg-gray-50 p-2">
                                         <img src="<?= htmlspecialchars($item->product->image_url ?? '') ?>"
                                             alt="<?= htmlspecialchars($item->product->product_name ?? '') ?>"
                                             class="w-12 h-12 object-cover rounded-md border">
@@ -117,8 +129,9 @@
     <!-- Pagination -->
     <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
         <div class="mt-6 flex items-center justify-center space-x-2">
+            <?php $searchParam = isset($search) ? '&search=' . urlencode($search) : ''; ?>
             <?php if ($ordersCurrentPage > 1): ?>
-                <a href="/manager/orders?page=<?= $ordersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+                <a href="/manager/orders?page=<?= $ordersCurrentPage - 1 ?><?= $searchParam ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
             <?php else: ?>
                 <div class="px-3 py-1 bg-gray-200 rounded-md text-sm invisible">&laquo; Trước</div>
             <?php endif; ?>
@@ -126,7 +139,7 @@
             <div class="px-3 py-1 text-sm text-gray-600">Trang <?= $ordersCurrentPage ?> / <?= $ordersTotalPages ?></div>
 
             <?php if ($ordersCurrentPage < $ordersTotalPages): ?>
-                <a href="/manager/orders?page=<?= $ordersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+                <a href="/manager/orders?page=<?= $ordersCurrentPage + 1 ?><?= $searchParam ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
             <?php else: ?>
                 <div class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm invisible">Tiếp &raquo;</div>
             <?php endif; ?>
