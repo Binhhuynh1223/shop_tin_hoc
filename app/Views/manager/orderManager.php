@@ -105,7 +105,7 @@
                                 <button
                                     onclick="completeOrder(<?= $order->order_id ?>)"
                                     class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 focus-ring">
-                                    Chuyển sang "Hoàn thành"
+                                    Xác nhận đơn hàng
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -116,24 +116,27 @@
 
     <!-- Pagination -->
     <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
-        <div class="p-4 bg-white border-t flex items-center justify-between mt-4">
-            <div class="text-sm text-gray-600">Trang <?= $ordersCurrentPage ?> / <?= $ordersTotalPages ?></div>
-            <div class="space-x-2">
-                <?php if ($ordersCurrentPage > 1): ?>
-                    <a href="/manager/orders?page=<?= $ordersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
-                <?php endif; ?>
+        <div class="mt-6 flex items-center justify-center space-x-2">
+            <?php if ($ordersCurrentPage > 1): ?>
+                <a href="/manager/orders?page=<?= $ordersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+            <?php else: ?>
+                <div class="px-3 py-1 bg-gray-200 rounded-md text-sm invisible">&laquo; Trước</div>
+            <?php endif; ?>
 
-                <?php if ($ordersCurrentPage < $ordersTotalPages): ?>
-                    <a href="/manager/orders?page=<?= $ordersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
-                <?php endif; ?>
-            </div>
+            <div class="px-3 py-1 text-sm text-gray-600">Trang <?= $ordersCurrentPage ?> / <?= $ordersTotalPages ?></div>
+
+            <?php if ($ordersCurrentPage < $ordersTotalPages): ?>
+                <a href="/manager/orders?page=<?= $ordersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+            <?php else: ?>
+                <div class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm invisible">Tiếp &raquo;</div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </section>
 
 <script>
     function completeOrder(orderId) {
-        if (!confirm('Bạn có chắc chắn muốn hoàn thành đơn hàng này? Hành động này không thể hoàn tác.')) {
+        if (!confirm('Bạn có chắc chắn xác nhận đơn hàng này đã hoàn thành? Hành động này không thể hoàn tác.')) {
             return;
         }
 
@@ -151,7 +154,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    alert('Cập nhật đơn hàng thành công!');
 
                     // Cập nhật giao diện
                     const statusSpan = document.getElementById(`status-badge-${orderId}`);
@@ -163,14 +166,14 @@
                 } else {
                     alert('Lỗi: ' + data.message);
                     button.disabled = false;
-                    button.textContent = 'Chuyển sang "Hoàn thành"';
+                    button.textContent = 'Xác nhận đơn hàng';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Đã xảy ra lỗi kết nối.');
                 button.disabled = false;
-                button.textContent = 'Chuyển sang "Hoàn thành"';
+                button.textContent = 'Xác nhận đơn hàng';
             });
     }
 </script>

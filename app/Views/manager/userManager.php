@@ -90,17 +90,20 @@
 
     <!-- Pagination -->
     <?php if (isset($usersTotalPages) && $usersTotalPages > 1): ?>
-        <div class="p-4 bg-white border-t flex items-center justify-between">
-            <div class="text-sm text-gray-600">Trang <?= $usersCurrentPage ?> / <?= $usersTotalPages ?></div>
-            <div class="space-x-2">
-                <?php if ($usersCurrentPage > 1): ?>
-                    <a href="/manager/users?page=<?= $usersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
-                <?php endif; ?>
+        <div class="mt-6 flex items-center justify-center space-x-2">
+            <?php if ($usersCurrentPage > 1): ?>
+                <a href="/manager/users?page=<?= $usersCurrentPage - 1 ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
+            <?php else: ?>
+                <div class="px-3 py-1 bg-gray-200 rounded-md text-sm invisible">&laquo; Trước</div>
+            <?php endif; ?>
 
-                <?php if ($usersCurrentPage < $usersTotalPages): ?>
-                    <a href="/manager/users?page=<?= $usersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
-                <?php endif; ?>
-            </div>
+            <div class="px-3 py-1 text-sm text-gray-600">Trang <?= $usersCurrentPage ?> / <?= $usersTotalPages ?></div>
+
+            <?php if ($usersCurrentPage < $usersTotalPages): ?>
+                <a href="/manager/users?page=<?= $usersCurrentPage + 1 ?>" class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">Tiếp &raquo;</a>
+            <?php else: ?>
+                <div class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm invisible">Tiếp &raquo;</div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </section>
