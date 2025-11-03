@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-require_once __DIR__ . '/../../PDO.php';
-
 class Order extends Model
 {
     protected $table = 'orders';

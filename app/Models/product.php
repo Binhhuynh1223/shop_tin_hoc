@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-require_once __DIR__ . '/../../PDO.php';
 
 class Product extends Model
 {
