@@ -1,6 +1,6 @@
 <section class="p-6 lg:p-8 border-t border-gray-200">
-    <header class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-900">Quản lý Đơn hàng</h2>
+    <header class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Quản lý đơn hàng</h2>
     </header>
 
     <!-- Tìm kiếm -->
