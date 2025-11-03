@@ -173,4 +173,28 @@ class ProductController extends BaseController
 
         return '/images/products/' . $filename;
     }
+
+    /**
+     * Search by product name
+     */
+    public function search()
+    {
+        try {
+            $query = $_GET['q'] ?? '';
+            if (strlen($query) < 1) {
+                $this->jsonResponse(['success' => true, 'products' => []]);
+                return;
+            }
+
+            $products = $this->model
+                ->where('product_name', 'LIKE', '%' . $query . '%')
+                ->select('product_id', 'product_name', 'image_url', 'price', 'brand')
+                ->take(10) // Giới hạn 10 kết quả
+                ->get();
+
+            $this->jsonResponse(['success' => true, 'products' => $products]);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -3,6 +3,7 @@
 use App\Controllers\CartController;
 use App\Controllers\ProfileController;
 use App\Controllers\OrderController;
+use App\Controllers\ProductController;
 
 $router->get('/', function () {
     require_once __DIR__ . '/../../app/Views/home.php';
@@ -12,6 +13,11 @@ $router->get('/', function () {
 
 $router->get('/products', function () {
     require_once __DIR__ . '/../../app/Views/products.php';
+});
+
+$router->get('/products/search', function () {
+    $controller = new ProductController();
+    $controller->search();
 });
 
 $router->get('/product/{id}', function ($id) {

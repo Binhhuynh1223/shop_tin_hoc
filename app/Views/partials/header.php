@@ -51,6 +51,72 @@ $services = $services->getAllServices() ?? [];
             outline: 3px solid rgba(14, 165, 164, 0.25);
             outline-offset: 2px;
         }
+
+        /* CSS for popup search*/
+        #header-search-results {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 50;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+            margin-right: 0.75rem;
+        }
+
+        .search-result-info {
+            flex-grow: 1;
+        }
+
+        .search-result-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .search-result-info p {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin: 0;
+            margin-top: 2px;
+        }
+
+        .search-result-info .price {
+            font-weight: 600;
+            color: #c026d3;
+        }
     </style>
 </head>
 
@@ -169,11 +235,19 @@ $services = $services->getAllServices() ?? [];
 
                 <!-- Right side: Tìm kiếm, menu mobile, giỏ hàng, user -->
                 <div class="flex items-center gap-3">
-                    <div class="hidden sm:flex items-center bg-gray-100 rounded-md px-2 py-1 gap-2">
-                        <input aria-label="Tìm sản phẩm" type="search" placeholder="Tìm kiếm..." class="bg-transparent outline-none text-sm px-2" />
+
+                    <div class="hidden sm:flex items-center bg-gray-100 rounded-md px-2 py-1 gap-2 relative">
+                        <input
+                            aria-label="Tìm sản phẩm"
+                            type="search"
+                            placeholder="Tìm kiếm..."
+                            id="header-search-input"
+                            class="bg-transparent outline-none text-sm px-2"
+                            autocomplete="off" />
                         <button class="text-sm text-slate-600 px-2 py-1 focus-ring">
                             <i class="fas fa-search"></i>
                         </button>
+                        <div id="header-search-results"></div>
                     </div>
                     <button id="menuBtn" class="md:hidden p-2 rounded-md focus-ring" aria-label="Mở menu">☰</button>
                     <a href="/cart" class="text-sm px-3 py-2 rounded-md hover:text-accent focus-ring inline-flex flex-col items-center">
@@ -216,6 +290,71 @@ $services = $services->getAllServices() ?? [];
             </div>
         </div>
     </header>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('header-search-input');
+            const searchResults = document.getElementById('header-search-results');
+
+            if (searchInput) {
+                searchInput.addEventListener('keyup', async function() {
+                    const term = this.value.trim();
+
+                    if (term.length < 1) {
+                        searchResults.innerHTML = '';
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/products/search?q=${encodeURIComponent(term)}`);
+                        const data = await response.json();
+
+                        searchResults.innerHTML = ''; // Xóa kết quả cũ
+
+                        if (data.success && data.products.length > 0) {
+                            data.products.forEach(product => {
+                                const priceFormatted = new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND'
+                                }).format(product.price);
+
+                                const itemHtml = `
+                                    <a href="/product/${product.product_id}" class="search-result-item">
+                                        <img src="${product.image_url}" alt="${product.product_name}">
+                                        <div class="search-result-info">
+                                            <h4>${product.product_name}</h4>
+                                            <p>${product.brand}</p>
+                                            <p class="price">${priceFormatted}</p>
+                                        </div>
+                                    </a>
+                                `;
+                                searchResults.innerHTML += itemHtml;
+                            });
+                            searchResults.style.display = 'block';
+                        } else {
+                            if (data.products && data.products.length === 0) {
+                                searchResults.innerHTML = '<p class="p-2 text-sm text-gray-500 text-center">Không tìm thấy sản phẩm.</p>';
+                                searchResults.style.display = 'block';
+                            } else {
+                                searchResults.style.display = 'none';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Lỗi tìm kiếm:', error);
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Ẩn popup khi click ra ngoài
+                document.addEventListener('click', function(e) {
+                    if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                        searchResults.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
