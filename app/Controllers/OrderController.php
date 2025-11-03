@@ -26,7 +26,6 @@ class OrderController extends BaseController
     {
         AuthMiddleware::requireAuth();
         $userId = $_SESSION['user']['id'];
-        // Sửa dòng này: Đọc dữ liệu JSON từ request body
         $input = json_decode(file_get_contents('php://input'), true);
 
         if (empty($input['full_name']) || empty($input['shipping_address']) || empty($input['payment_method']) || empty($input['email']) || empty($input['phone'])) {
@@ -53,93 +52,15 @@ class OrderController extends BaseController
         }
         try {
             $order = Order::createFromCart($cart, $input);
-            if ($input['payment_method'] === 'vnpay') {
-                $paymentUrl = $this->createVNPayPayment($order);
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'redirect' => $paymentUrl]);
-            } else { // COD
-                $order->updatePaymentStatus('processing');
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'redirect' => '/order/success/' . $order->order_id]);
-            }
+            $order->updatePaymentStatus('processing');
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'redirect' => '/order/success/' . $order->order_id]);
         } catch (\Exception $e) {
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             http_response_code(500);
         }
     }
-
-
-    private function createVNPayPayment($order)
-    {
-        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_TmnCode = $_ENV['VNPAY_TMN_CODE'];
-        $vnp_HashSecret = $_ENV['VNPAY_HASH_SECRET'];
-        $vnp_Returnurl = "http://localhost/payment/vnpay/return";
-        $vnp_TxnRef = $order->order_id;
-        $vnp_OrderInfo = "Thanh toan don hang " . $order->order_id;
-        $vnp_Amount = $order->total_amount * 100;
-        $vnp_Locale = 'vn';
-        $vnp_BankCode = '';
-        $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-        $inputData = [
-            "vnp_Version" => "2.1.0",
-            "vnp_Command" => "pay",
-            "vnp_TmnCode" => $vnp_TmnCode,
-            "vnp_Amount" => $vnp_Amount,
-            "vnp_CreateDate" => date('YmdHis'),
-            "vnp_CurrCode" => "VND",
-            "vnp_IpAddr" => $vnp_IpAddr,
-            "vnp_Locale" => $vnp_Locale,
-            "vnp_OrderInfo" => $vnp_OrderInfo,
-            "vnp_OrderType" => 'billpayment',
-            "vnp_ReturnUrl" => $vnp_Returnurl,
-            "vnp_TxnRef" => $vnp_TxnRef,
-        ];
-        ksort($inputData);
-        $query = http_build_query($inputData);
-        $vnpSecureHash = hash_hmac('sha512', $query, $vnp_HashSecret);
-        return $vnp_Url . '?' . $query . '&vnp_SecureHash=' . $vnpSecureHash;
-    }
-
-
-    public function vnpayReturn()
-    {
-        $input = $_GET;
-        $orderId = $input['vnp_TxnRef'];
-        $responseCode = $input['vnp_ResponseCode'];
-        $order = Order::find($orderId);
-        if (!$order) {
-            $this->redirect('/cart', 'Đơn hàng không tồn tại', 'error');
-        }
-        if ($responseCode == '00') {
-            $order->updatePaymentStatus('processing', $input['vnp_TransactionNo']);
-            $this->redirect('/order/success/' . $orderId, 'Thanh toán thành công');
-        } else {
-            $order->updatePaymentStatus('cancelled');
-            $this->redirect('/order/failure/' . $orderId, 'Thanh toán thất bại', 'error');
-        }
-    }
-
-
-    public function vnpayIpn()
-    {
-        // Xử lý tương tự vnpayReturn, nhưng verify hash thủ công
-        // Ví dụ đơn giản (thêm verify hash nếu cần)
-        $input = $_POST; // IPN dùng POST
-        $orderId = $input['vnp_TxnRef'];
-        $responseCode = $input['vnp_ResponseCode'];
-        $order = Order::find($orderId);
-        if ($order && $responseCode == '00') {
-            $order->updatePaymentStatus('processing', $input['vnp_TransactionNo']);
-            header('Content-Type: application/json');
-            echo json_encode(['RspCode' => '00', 'Message' => 'Confirm Success']);
-        } else {
-            header('Content-Type: application/json');
-            echo json_encode(['RspCode' => '99', 'Message' => 'Fail']);
-        }
-    }
-
 
     public function success($orderId)
     {

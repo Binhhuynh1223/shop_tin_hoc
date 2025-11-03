@@ -10,7 +10,6 @@ $router->get('/', function () {
 });
 
 // Product
-
 $router->get('/products', function () {
     require_once __DIR__ . '/../../app/Views/products.php';
 });
@@ -44,7 +43,6 @@ $router->get('/products/{brand}', function ($brand) {
 
 
 // Cart
-
 $router->get('/cart', function () {
     if (!isset($_SESSION['user']['id'])) {
         header('Location: /login');
@@ -89,6 +87,7 @@ $router->post('/cart/remove/{cart_item_id}', function ($cart_item_id) {
     $controller->remove($cart_item_id);
 });
 
+
 // Profile
 $router->get('/profile', function () {
     require_once __DIR__ . '/../../app/Views/profile.php';
@@ -99,6 +98,7 @@ $router->post('/profile/update', function () {
     $controller->update();
 });
 
+
 // Checkout và Order
 $router->get('/checkout', function () {
     $controller = new OrderController();
@@ -108,14 +108,9 @@ $router->post('/order/create', function () {
     $controller = new OrderController();
     $controller->create();
 });
-$router->get('/payment/vnpay/return', function () {
-    $controller = new OrderController();
-    $controller->vnpayReturn();
-});
-$router->post('/payment/vnpay/ipn', function () {
-    $controller = new OrderController();
-    $controller->vnpayIpn();
-});
+
+
+// Trang kết quả Order
 $router->get('/order/success/(\d+)', function ($id) {
     $controller = new OrderController();
     $controller->success($id);

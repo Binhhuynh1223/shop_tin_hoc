@@ -130,7 +130,7 @@ if ($_SESSION['user']['id'] ?? false) {
                             <label class="block text-sm font-medium">Phương thức thanh toán</label>
                             <select name="payment_method" class="w-full border rounded-md p-2" required>
                                 <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                                <option value="vnpay">Thanh toán qua VNPay</option>
+                                <!-- <option value="bank_transfer">Chuyển khoản ngân hàng</option> -->
                             </select>
                         </div>
                         <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md font-medium hover:bg-indigo-700">Xác nhận thanh toán</button>
