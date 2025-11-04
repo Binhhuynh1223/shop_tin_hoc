@@ -94,13 +94,14 @@ class Order extends Model
     public function cancel()
     {
         // Chỉ cho phép hủy đơn hàng đang 'pending' (chưa thanh toán)
-        if ($this->status !== 'pending') {
+        // hoặc 'processing' (đơn COD chưa giao)
+        if ($this->status !== 'pending' && $this->status !== 'processing') {
             throw new \Exception('Không thể hủy đơn hàng ở trạng thái này.');
         }
 
         Capsule::beginTransaction();
         try {
-            // Hoàn trả stock
+            // 1. Hoàn trả stock
             // Đảm bảo đã load 'items' trước khi gọi hàm này
             foreach ($this->items as $item) {
                 $product = Product::find($item->product_id);
@@ -110,7 +111,7 @@ class Order extends Model
                 }
             }
 
-            // Cập nhật trạng thái đơn hàng
+            // 2. Cập nhật trạng thái đơn hàng
             $this->status = 'cancelled';
             $this->save();
 

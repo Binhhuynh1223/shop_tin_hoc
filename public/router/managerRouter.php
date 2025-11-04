@@ -73,7 +73,7 @@ $router->mount('/manager', function () use ($router) {
         $controller->orders();
     });
 
-    // Cập nhật trạng thái đơn hàng (processing -> completed)
+    // Cập nhật trạng thái đơn hàng (pending -> completed)
     $router->post('/orders/complete/(\d+)', function ($id) {
         $controller = new OrderController();
         $controller->completeOrder($id);

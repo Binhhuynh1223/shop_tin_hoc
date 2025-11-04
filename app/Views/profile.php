@@ -134,6 +134,10 @@ include __DIR__ . '/partials/header.php';
                             $statusText = 'Chờ thanh toán';
                             $statusColorClass = 'bg-yellow-100 text-yellow-800';
                             break;
+                        case 'processing':
+                            $statusText = 'Đang xử lý';
+                            $statusColorClass = 'bg-blue-100 text-blue-800';
+                            break;
                         case 'completed':
                             $statusText = 'Đã hoàn thành';
                             $statusColorClass = 'bg-green-100 text-green-800';
@@ -169,7 +173,7 @@ include __DIR__ . '/partials/header.php';
                                     <?= $statusText ?>
                                 </span>
 
-                                <?php if ($order->status === 'pending'): ?>
+                                <?php if ($order->status === 'pending' || $order->status === 'processing'): ?>
                                     <button
                                         id="cancel-btn-<?= $order->order_id ?>"
                                         onclick="cancelOrder(<?= $order->order_id ?>)"
