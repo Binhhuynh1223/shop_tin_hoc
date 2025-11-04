@@ -50,13 +50,12 @@ class OrderController extends BaseController
         }
 
         try {
-            // Tạo đơn hàng trước (với status 'pending')
-            // Hàm createFromCart đã giảm stock và xóa cart
+            // Tạo đơn hàng trước
             $order = Order::createFromCart($cart, $input);
 
-            // Nếu là COD, trả về redirect tới trang success
             if ($paymentMethod === 'cod') {
-                $order->updatePaymentStatus('processing'); // Cập nhật trạng thái cho COD
+                // Đơn COD sẽ ở trạng thái 'pending' chờ admin xác nhận
+                $order->updatePaymentStatus('pending');
                 $this->jsonResponse(['success' => true, 'redirect' => '/order/success/' . $order->order_id]);
                 exit;
             }
@@ -125,7 +124,7 @@ class OrderController extends BaseController
     }
 
     /**
-     * Chuyển trạng thái đơn hàng từ Processing -> Completed (Admin)
+     * Chuyển trạng thái đơn hàng từ Pending -> Completed (Admin)
      */
     public function completeOrder($orderId)
     {
@@ -138,9 +137,9 @@ class OrderController extends BaseController
                 return;
             }
 
-            // Chỉ cho phép cập nhật khi đang 'processing'
-            if ($order->status !== 'processing') {
-                $this->jsonResponse(['success' => false, 'message' => 'Chỉ có thể hoàn thành đơn hàng đang "Xử lý".'], 400);
+            // Chỉ cho phép cập nhật khi đang 'pending'
+            if ($order->status !== 'pending') {
+                $this->jsonResponse(['success' => false, 'message' => 'Chỉ có thể hoàn thành đơn hàng đang "Chờ thanh toán" (COD).'], 400);
                 return;
             }
 
@@ -185,17 +184,17 @@ class OrderController extends BaseController
         if ($vnpData['vnp_ResponseCode'] === '00') {
             // Kiểm tra trạng thái đơn hàng
             if ($order->status === 'pending') {
-                // Chờ thanh toán -> Cập nhật trạng thái sang "Đang xử lý"
-                $order->updatePaymentStatus('processing', $vnpData['vnp_TransactionNo']);
+                $order->updatePaymentStatus('completed', $vnpData['vnp_TransactionNo']);
             }
             // Redirect đến thông báo đơn hàng thành công
             $this->redirect('/order/success/' . $orderId);
         } else {
             // Thanh toán thất bại -> Hủy đơn hàng và hoàn stock
-            if ($order->status === 'pending') {
+            if ($order->status === 'cancelled') {
                 $order->cancel();
             }
-            // Redirect đến trang thất bại
+            // Hủy thanh toán
+            $order->cancel();
             $this->redirect('/order/failure/' . $orderId);
         }
     }
@@ -247,7 +246,12 @@ class OrderController extends BaseController
 
             // Kiểm tra trạng thái đơn hàng (tránh xử lý lại)
             if ($order->status !== 'pending') {
-                $response = ['RspCode' => '02', 'Message' => 'Order already confirmed'];
+                // Nếu VNPAY IPN gọi lại mà đơn đã 'completed' do vnpayReturn xử lý thì vẫn báo thành công
+                if ($order->status === 'completed') {
+                    $response = ['RspCode' => '00', 'Message' => 'Confirm Success (Order already completed)'];
+                } else {
+                    $response = ['RspCode' => '02', 'Message' => 'Order already confirmed or cancelled'];
+                }
                 echo json_encode($response);
                 exit;
             }
@@ -255,7 +259,7 @@ class OrderController extends BaseController
             // Xử lý kết quả thanh toán
             if ($vnpData['vnp_ResponseCode'] === '00' && $vnpData['vnp_TransactionStatus'] === '00') {
                 // Thành công
-                $order->updatePaymentStatus('processing', $vnpData['vnp_TransactionNo']);
+                $order->updatePaymentStatus('completed', $vnpData['vnp_TransactionNo']);
                 $response = ['RspCode' => '00', 'Message' => 'Confirm Success'];
             } else {
                 // Thất bại

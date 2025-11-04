@@ -3,7 +3,6 @@
         <h2 class="text-xl font-semibold text-gray-900">Quản lý đơn hàng</h2>
     </header>
 
-    <!-- Tìm kiếm -->
     <form method="GET" action="/manager/orders" class="mb-4">
         <div class="flex">
             <input type="text" name="search" placeholder="Tìm theo tên đăng nhập hoặc họ tên khách hàng..."
@@ -15,7 +14,6 @@
         </div>
     </form>
 
-    <!-- Hiển thị các đơn hàng -->
     <div class="space-y-6">
 
         <?php if ($orders->isEmpty()): ?>
@@ -30,10 +28,6 @@
                     case 'pending':
                         $statusText = 'Chờ thanh toán';
                         $statusColorClass = 'bg-yellow-100 text-yellow-800';
-                        break;
-                    case 'processing':
-                        $statusText = 'Đang xử lý';
-                        $statusColorClass = 'bg-blue-100 text-blue-800';
                         break;
                     case 'completed':
                         $statusText = 'Hoàn thành';
@@ -113,11 +107,11 @@
                         </div>
 
                         <div id="action-container-<?= $order->order_id ?>">
-                            <?php if ($order->status === 'processing'): ?>
+                            <?php if ($order->status === 'pending' && $order->payment_method === 'cod'): ?>
                                 <button
                                     onclick="completeOrder(<?= $order->order_id ?>)"
                                     class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 focus-ring">
-                                    Xác nhận đơn hàng
+                                    Xác nhận Hoàn thành
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -126,7 +120,6 @@
         <?php endif; ?>
     </div>
 
-    <!-- Pagination -->
     <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
         <div class="mt-6 flex items-center justify-center space-x-2">
             <?php $searchParam = isset($search) ? '&search=' . urlencode($search) : ''; ?>
@@ -167,7 +160,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Cập nhật đơn hàng thành công!');
 
                     // Cập nhật giao diện
                     const statusSpan = document.getElementById(`status-badge-${orderId}`);
@@ -179,14 +171,14 @@
                 } else {
                     alert('Lỗi: ' + data.message);
                     button.disabled = false;
-                    button.textContent = 'Xác nhận đơn hàng';
+                    button.textContent = 'Xác nhận Hoàn thành';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Đã xảy ra lỗi kết nối.');
                 button.disabled = false;
-                button.textContent = 'Xác nhận đơn hàng';
+                button.textContent = 'Xác nhận Hoàn thành';
             });
     }
 </script>
