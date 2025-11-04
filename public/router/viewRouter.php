@@ -123,3 +123,13 @@ $router->post('/order/cancel/(\d+)', function ($id) {
     $controller = new OrderController();
     $controller->cancelOrder($id);
 });
+
+// VNPay
+$router->get('/order/vnpay_return', function () {
+    $controller = new OrderController();
+    $controller->vnpayReturn();
+});
+$router->get('/order/vnpay_ipn', function () {
+    $controller = new OrderController();
+    $controller->vnpayIpn();
+});

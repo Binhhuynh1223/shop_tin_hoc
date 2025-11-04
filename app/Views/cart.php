@@ -1,5 +1,5 @@
 <?php
-// Thêm use statement cho User model
+
 use App\Models\User;
 use App\Models\Cart;
 
@@ -14,13 +14,15 @@ if ($_SESSION['user']['id'] ?? false) {
     $userModel = new User();
     $user = $userModel->find($userId);
 } else {
+    // chưa đăng nhập
     $cart = null;
-    $user = null; // Khởi tạo user là null nếu chưa đăng nhập
+    $user = null;
 }
 ?>
 <?php include __DIR__ . '/partials/header.php'; ?>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <!-- Thông tin sản phẩm trong giỏ hàng -->
     <section>
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold">Giỏ hàng</h1>
@@ -86,11 +88,10 @@ if ($_SESSION['user']['id'] ?? false) {
             </div>
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Thông tin sản phẩm -->
                 <div>
                     <h3 class="font-semibold mb-4">Sản phẩm trong giỏ</h3>
                     <div class="space-y-4">
-                        <?php foreach ($cart->items as $item): ?>
+                        <?php foreach (($cart->items ?? []) as $item): ?>
                             <div class="flex justify-between items-center border-b pb-2">
                                 <div>
                                     <p class="font-medium"><?= htmlspecialchars($item->product->product_name) ?></p>
@@ -102,17 +103,17 @@ if ($_SESSION['user']['id'] ?? false) {
                     </div>
                     <div class="mt-4 flex justify-between font-bold">
                         <span>Tổng cộng:</span>
-                        <span><?= number_format($cart->getTotalAttribute(), 0, ',', '.') ?>₫</span>
+                        <span><?= number_format($cart->getTotalAttribute() ?? 0, 0, ',', '.') ?>₫</span>
                     </div>
                 </div>
 
-                <!-- Thông tin cá nhân và form -->
+                <!-- Form thông tin nhận hàng -->
                 <div>
                     <h3 class="font-semibold mb-4">Thông tin nhận hàng</h3>
                     <form id="checkout-form" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium">Họ và tên</label>
-                            <input type="text" name="full_name" value="<?= htmlspecialchars($user->full_name ?? '') ?>" class="w-full border rounded-md p-2" reaquired>
+                            <input type="text" name="full_name" value="<?= htmlspecialchars($user->full_name ?? '') ?>" class="w-full border rounded-md p-2" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium">Email</label>
@@ -130,10 +131,10 @@ if ($_SESSION['user']['id'] ?? false) {
                             <label class="block text-sm font-medium">Phương thức thanh toán</label>
                             <select name="payment_method" class="w-full border rounded-md p-2" required>
                                 <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                                <!-- <option value="bank_transfer">Chuyển khoản ngân hàng</option> -->
+                                <option value="vnpay">Thanh toán qua VNPAY</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md font-medium hover:bg-indigo-700">Xác nhận thanh toán</button>
+                        <button type="submit" id="checkout-submit-button" class="w-full bg-indigo-600 text-white py-3 rounded-md font-medium hover:bg-indigo-700">Xác nhận thanh toán</button>
                     </form>
                 </div>
             </div>
@@ -249,6 +250,11 @@ if ($_SESSION['user']['id'] ?? false) {
 
     document.getElementById('checkout-form').addEventListener('submit', function(e) {
         e.preventDefault();
+
+        const submitButton = document.getElementById('checkout-submit-button');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Đang xử lý...';
+
         const formData = new FormData(this);
         const data = {};
         formData.forEach((value, key) => data[key] = value);
@@ -263,12 +269,24 @@ if ($_SESSION['user']['id'] ?? false) {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    window.location.href = result.redirect;
+                    if (result.redirect) {
+                        // Xử lý COD: Chuyển hướng đến trang thành công
+                        window.location.href = result.redirect;
+                    } else if (result.payment_url) {
+                        // Xử lý VNPAY: Chuyển hướng đến cổng thanh toán
+                        window.location.href = result.payment_url;
+                    }
                 } else {
-                    alert(result.message);
+                    alert('Lỗi: ' + result.message);
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Xác nhận thanh toán';
                 }
             })
-            .catch(error => alert('Lỗi: ' + error));
+            .catch(error => {
+                alert('Lỗi kết nối: ' + error);
+                submitButton.disabled = false;
+                submitButton.textContent = 'Xác nhận thanh toán';
+            });
     });
 </script>
 

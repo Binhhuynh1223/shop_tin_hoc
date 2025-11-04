@@ -6,6 +6,7 @@ use App\Middleware\AuthMiddleware;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\VNPAYService; // Thêm use VNPAYService
 
 class OrderController extends BaseController
 {
@@ -27,38 +28,57 @@ class OrderController extends BaseController
         AuthMiddleware::requireAuth();
         $userId = $_SESSION['user']['id'];
         $input = json_decode(file_get_contents('php://input'), true);
+        $paymentMethod = $input['payment_method'] ?? null;
 
-        if (empty($input['full_name']) || empty($input['shipping_address']) || empty($input['payment_method']) || empty($input['email']) || empty($input['phone'])) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin']);
-            http_response_code(400);
+        if (empty($input['full_name']) || empty($input['shipping_address']) || empty($paymentMethod) || empty($input['email']) || empty($input['phone'])) {
+            $this->jsonResponse(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin'], 400);
             exit;
         }
+
         $cart = Cart::where('user_id', $userId)->with(['items.product'])->first();
         if (!$cart || $cart->items->isEmpty()) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Giỏ hàng trống']);
-            http_response_code(400);
+            $this->jsonResponse(['success' => false, 'message' => 'Giỏ hàng trống'], 400);
             exit;
         }
-        // Kiểm tra stock trước khi tạo order
+
+        // Kiểm tra stock
         foreach ($cart->items as $item) {
             if ($item->product->stock < $item->quantity) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Sản phẩm ' . htmlspecialchars($item->product->product_name) . ' không đủ hàng']);
-                http_response_code(400);
+                $this->jsonResponse(['success' => false, 'message' => 'Sản phẩm ' . htmlspecialchars($item->product->product_name) . ' không đủ hàng'], 400);
                 exit;
             }
         }
+
         try {
+            // Tạo đơn hàng trước (với status 'pending')
+            // Hàm createFromCart đã giảm stock và xóa cart
             $order = Order::createFromCart($cart, $input);
-            $order->updatePaymentStatus('processing');
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'redirect' => '/order/success/' . $order->order_id]);
+
+            // Nếu là COD, trả về redirect tới trang success
+            if ($paymentMethod === 'cod') {
+                $order->updatePaymentStatus('processing'); // Cập nhật trạng thái cho COD
+                $this->jsonResponse(['success' => true, 'redirect' => '/order/success/' . $order->order_id]);
+                exit;
+            }
+
+            // Nếu là VNPAY, tạo URL thanh toán
+            if ($paymentMethod === 'vnpay') {
+                $vnpayService = new VNPAYService();
+                $paymentUrl = $vnpayService->createPaymentUrl(
+                    $order->order_id,
+                    $order->total_amount,
+                    "Thanh toan don hang #" . $order->order_id
+                );
+
+                // Trả về URL VNPAY để client redirect
+                $this->jsonResponse(['success' => true, 'payment_url' => $paymentUrl]);
+                exit;
+            }
+
+            // Các phương thức thanh toán khác (nếu có)
+            $this->jsonResponse(['success' => false, 'message' => 'Phương thức thanh toán không hợp lệ'], 400);
         } catch (\Exception $e) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-            http_response_code(500);
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
@@ -96,7 +116,7 @@ class OrderController extends BaseController
         }
 
         try {
-            // Hủy đơn hàng
+            // Hủy đơn hàng (Model đã xử lý hoàn stock)
             $order->cancel();
             $this->jsonResponse(['success' => true, 'message' => 'Hủy đơn hàng thành công.']);
         } catch (\Exception $e) {
@@ -131,6 +151,123 @@ class OrderController extends BaseController
             $this->jsonResponse(['success' => true, 'message' => 'Đã cập nhật đơn hàng thành "Hoàn thành".']);
         } catch (\Exception $e) {
             $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Xử lý VNPAY Return (Client-side)
+     * Người dùng sẽ được redirect về URL này sau khi thanh toán
+     */
+    public function vnpayReturn()
+    {
+        $vnpayService = new VNPAYService();
+        $vnpData = $_GET;
+        $orderId = $vnpData['vnp_TxnRef'] ?? null;
+
+        if (!$orderId) {
+            $this->redirect('/');
+            return;
+        }
+
+        $order = Order::with('items')->find($orderId);
+        if (!$order) {
+            $this->redirect('/');
+            return;
+        }
+
+        // Xác thực chữ ký
+        if (!$vnpayService->validateResponse($vnpData)) {
+            $this->redirect('/order/failure/' . $orderId);
+            return;
+        }
+
+        // Kiểm tra mã phản hồi (vnp_ResponseCode)
+        if ($vnpData['vnp_ResponseCode'] === '00') {
+            // Kiểm tra trạng thái đơn hàng
+            if ($order->status === 'pending') {
+                // Chờ thanh toán -> Cập nhật trạng thái sang "Đang xử lý"
+                $order->updatePaymentStatus('processing', $vnpData['vnp_TransactionNo']);
+            }
+            // Redirect đến thông báo đơn hàng thành công
+            $this->redirect('/order/success/' . $orderId);
+        } else {
+            // Thanh toán thất bại -> Hủy đơn hàng và hoàn stock
+            if ($order->status === 'pending') {
+                $order->cancel();
+            }
+            // Redirect đến trang thất bại
+            $this->redirect('/order/failure/' . $orderId);
+        }
+    }
+
+    /**
+     * Xử lý VNPAY IPN (Server-side)
+     * VNPAY sẽ gọi URL này để xác nhận thanh toán
+     */
+    public function vnpayIpn()
+    {
+        $vnpayService = new VNPAYService();
+        $vnpData = $_GET;
+
+        // Phản hồi mặc định cho VNPAY
+        $response = ['RspCode' => '97', 'Message' => 'Invalid Input'];
+
+        try {
+            // Kiểm tra TmnCode
+            if ($vnpData['vnp_TmnCode'] !== $vnpayService->getTmnCode()) {
+                $response = ['RspCode' => '01', 'Message' => 'Invalid TmnCode'];
+                echo json_encode($response);
+                exit;
+            }
+
+            // Kiểm tra Chữ ký
+            if (!$vnpayService->validateResponse($vnpData)) {
+                $response = ['RspCode' => '97', 'Message' => 'Invalid Signature'];
+                echo json_encode($response);
+                exit;
+            }
+
+            $orderId = $vnpData['vnp_TxnRef'];
+            $order = Order::find($orderId);
+
+            // Kiểm tra đơn hàng
+            if (!$order) {
+                $response = ['RspCode' => '01', 'Message' => 'Order not found'];
+                echo json_encode($response);
+                exit;
+            }
+
+            // Kiểm tra số tiền
+            $vnpAmount = (float)$vnpData['vnp_Amount'] / 100;
+            if ($vnpAmount != (float)$order->total_amount) {
+                $response = ['RspCode' => '04', 'Message' => 'Invalid Amount'];
+                echo json_encode($response);
+                exit;
+            }
+
+            // Kiểm tra trạng thái đơn hàng (tránh xử lý lại)
+            if ($order->status !== 'pending') {
+                $response = ['RspCode' => '02', 'Message' => 'Order already confirmed'];
+                echo json_encode($response);
+                exit;
+            }
+
+            // Xử lý kết quả thanh toán
+            if ($vnpData['vnp_ResponseCode'] === '00' && $vnpData['vnp_TransactionStatus'] === '00') {
+                // Thành công
+                $order->updatePaymentStatus('processing', $vnpData['vnp_TransactionNo']);
+                $response = ['RspCode' => '00', 'Message' => 'Confirm Success'];
+            } else {
+                // Thất bại
+                $order->cancel();
+                $response = ['RspCode' => '00', 'Message' => 'Confirm Success (Failed Payment)'];
+            }
+
+            echo json_encode($response);
+            exit;
+        } catch (\Exception $e) {
+            echo json_encode($response);
+            exit;
         }
     }
 }
