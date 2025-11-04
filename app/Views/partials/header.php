@@ -12,9 +12,6 @@ $routerproducts = $products->getByCategory('Router') ?? [];
 
 
 $brand = $products->all()->toArray() ?? [];
-
-$services = new Service();
-$services = $services->getAllServices() ?? [];
 ?>
 <!doctype html>
 <html lang="vi">
