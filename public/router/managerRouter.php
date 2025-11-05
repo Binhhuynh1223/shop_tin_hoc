@@ -77,4 +77,9 @@ $router->mount('/manager', function () use ($router) {
         $controller->completeOrder($id);
     });
 
+    // Xuất hóa đơn
+    $router->get('/orders/invoice/(\d+)', function ($id) {
+        $controller = new OrderController();
+        $controller->generateInvoice($id);
+    });
 });
