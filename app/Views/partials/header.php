@@ -125,8 +125,12 @@ $brand = $products->all()->toArray() ?? [];
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-4">
                     <a href="/" class="inline-flex items-center gap-2">
-                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-accent to-green-600 flex items-center justify-center text-white font-semibold">S</div>
-                        <span class="text-lg font-semibold">Shop Tin Học</span>
+                        <div class="w-11 h-11 rounded-lg bg-brand text-accent flex items-center justify-center">
+                            <i class="fas fa-laptop-code text-3xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-xl font-semibold">Shop Tin Học</span>
+                        </div>
                     </a>
                 </div>
 
