@@ -4,6 +4,7 @@ use App\Controllers\CartController;
 use App\Controllers\ProfileController;
 use App\Controllers\OrderController;
 use App\Controllers\ProductController;
+use App\Controllers\ReviewController;
 
 $router->get('/', function () {
     require_once __DIR__ . '/../../app/Views/home.php';
@@ -39,6 +40,11 @@ $router->get('/products/{category}', function ($category) {
 $router->get('/products/{brand}', function ($brand) {
     $_GET['brand'] = $brand;
     require_once __DIR__ . '/../../app/Views/products.php';
+});
+
+$router->post('/product/(\d+)/review', function ($id) {
+    $controller = new ReviewController();
+    $controller->create($id);
 });
 
 
@@ -132,4 +138,16 @@ $router->get('/order/vnpay_return', function () {
 $router->get('/order/vnpay_ipn', function () {
     $controller = new OrderController();
     $controller->vnpayIpn();
+});
+
+
+// Review
+$router->post('/review/update/(\d+)', function ($id) {
+    $controller = new ReviewController();
+    $controller->update($id);
+});
+
+$router->post('/review/delete/(\d+)', function ($id) {
+    $controller = new ReviewController();
+    $controller->delete($id);
 });

@@ -97,5 +97,10 @@ class Product extends Model
         $item->stock = $stock;
         return $item->save();
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id');
+    }
 }
 
