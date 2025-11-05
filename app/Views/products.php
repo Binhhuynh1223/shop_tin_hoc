@@ -105,17 +105,15 @@ $queryString = http_build_query($queryParams);
                         </div>
                         <div class="px-4 pb-4 flex gap-2 justify-end">
                             <button class="p-2 rounded-md border text-sm focus-ring hover:bg-accent hover:text-white hover:border-accent transition-colors"
-                                onclick="addToFavorite(<?php echo $product->product_id; ?>)" title="Yêu thích">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </button>
-                            <button class="p-2 rounded-md border text-sm focus-ring hover:bg-accent hover:text-white hover:border-accent transition-colors"
-                                onclick="addToCart(<?php echo $product->product_id; ?>)" title="Thêm vào giỏ hàng">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </button>
+                            onclick="addToCart(<?php echo $product->product_id; ?>)" title="Thêm vào giỏ hàng">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </button>
+                        <button class="p-2 rounded-md border text-md focus-ring hover:bg-green-600 hover:text-white hover:border-green-600 transition-colors text-center"
+                            onclick="buyNow(<?php echo $product->product_id; ?>)" title="Mua ngay">
+                            Mua ngay
+                        </button>
                         </div>
                     </article>
                 <?php endforeach; ?>
@@ -191,17 +189,30 @@ $queryString = http_build_query($queryParams);
             });
     }
 
-    function addToFavorite(productId) {
-        fetch(`/favorites/add/${productId}`, {
-                method: 'POST'
+    function buyNow(productId) {
+        fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1 // Mặc định là 1 khi ở trang danh sách
+                })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Đã thêm vào yêu thích!');
+                    // Thêm vào giỏ hàng thành công, chuyển hướng đến trang giỏ hàng
+                    window.location.href = '/cart';
                 } else {
+                    // Hiển thị lỗi nếu thêm thất bại
                     alert(data.message);
                 }
+            })
+            .catch(error => {
+                console.error('Lỗi Mua ngay:', error);
+                alert('Đã xảy ra lỗi khi thêm sản phẩm. Vui lòng thử lại.');
             });
     }
 </script>

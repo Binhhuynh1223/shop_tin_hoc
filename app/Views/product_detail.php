@@ -14,10 +14,6 @@ $products_home = $products->find($_GET['id'] ?? 0);
         <!-- Product Image -->
         <div class="w-full md:w-1/2">
             <img src="<?= htmlspecialchars($products_home->image_url) ?>" alt="<?= htmlspecialchars($products_home->product_name) ?>" class="w-full h-auto object-cover rounded-lg shadow-md">
-            <!-- Optional: Thêm gallery nhỏ nếu có nhiều ảnh -->
-            <!-- <div class="flex gap-2 mt-4">
-                <img src="<?= htmlspecialchars($products_home->image_url) ?>" alt="Thumbnail 1" class="w-20 h-20 object-cover rounded-md border cursor-pointer">
-            </div> -->
         </div>
 
         <!-- Product Details -->
@@ -52,11 +48,6 @@ $products_home = $products->find($_GET['id'] ?? 0);
 
             <div class="mb-6">
                 <h3 class="text-lg mb-2">Hãng: <?php echo htmlspecialchars($products_home->brand); ?></h3>
-                <!-- <div class="flex space-x-2">
-                    <button class="w-8 h-8 bg-black rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"></button>
-                    <button class="w-8 h-8 bg-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"></button>
-                    <button class="w-8 h-8 bg-blue-500 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"></button>
-                </div> -->
             </div>
 
             <div class="mb-6">
@@ -72,24 +63,12 @@ $products_home = $products->find($_GET['id'] ?? 0);
                     </svg>
                     Thêm vào giỏ hàng
                 </button>
-                <button class="bg-gray-200 flex gap-2 items-center text-gray-800 px-6 py-3 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                    onclick="addToFavorite(<?= $products_home->product_id ?>)">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                    </svg>
-                    Yêu thích
+                <button class="bg-accent flex gap-2 items-center text-white px-6 py-3 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    onclick="buyNow(<?= $products_home->product_id ?>, document.getElementById('quantity').value)">
+                    Mua ngay
                 </button>
             </div>
 
-            <!-- <div>
-                <h3 class="text-lg font-semibold mb-2">Key Features:</h3>
-                <ul class="list-disc list-inside text-gray-700 space-y-1">
-                    <li>Industry-leading noise cancellation</li>
-                    <li>30-hour battery life</li>
-                    <li>Touch sensor controls</li>
-                    <li>Speak-to-chat technology</li>
-                </ul>
-            </div> -->
         </div>
     </div>
 </div>
@@ -118,17 +97,30 @@ $products_home = $products->find($_GET['id'] ?? 0);
             });
     }
 
-    function addToFavorite(productId) {
-        fetch(`/favorites/add/${productId}`, {
-                method: 'POST'
+    function buyNow(productId, quantity) {
+        fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity
+                })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Đã thêm vào yêu thích!');
+                    // Thêm vào giỏ hàng thành công, chuyển hướng đến trang giỏ hàng
+                    window.location.href = '/cart';
                 } else {
+                    // Hiển thị lỗi nếu thêm thất bại
                     alert(data.message);
                 }
+            })
+            .catch(error => {
+                console.error('Lỗi Mua ngay:', error);
+                alert('Đã xảy ra lỗi khi thêm sản phẩm. Vui lòng thử lại.');
             });
     }
 </script>
