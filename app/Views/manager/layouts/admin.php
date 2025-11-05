@@ -4,6 +4,11 @@ extract($adminInfo); // $name, $avatar
 if (isset($dashboardData)) extract($dashboardData);
 if (isset($products)) extract(['products' => $products]);
 if (isset($users)) extract(['users' => $users]);
+if (isset($orders)) extract(['orders' => $orders]);
+if (isset($topProducts)) extract(['topProducts' => $topProducts]);
+if (isset($topCustomers)) extract(['topCustomers' => $topCustomers]);
+if (isset($lowStockProducts)) extract(['lowStockProducts' => $lowStockProducts]);
+
 
 // Determine current request path without querystring and set a page slug
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

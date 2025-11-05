@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Order;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class ManagerController
 {
@@ -19,9 +20,12 @@ class ManagerController
 
     private function getAdminInfo()
     {
+        $user = User::find($_SESSION['user']['id']);
+        $name = $user->full_name ?? $user->username ?? 'Admin';
+
         return [
-            'name' => $_SESSION['user']['name'] ?? 'Admin',
-            'avatar' => $_SESSION['user']['avatar'] ?? 'https://via.placeholder.com/40'
+            'name' => $name,
+            'avatar' => $user->avatar ?? 'https://via.placeholder.com/40'
         ];
     }
 
@@ -38,10 +42,28 @@ class ManagerController
         // Chỉ tính doanh thu từ các đơn hàng đã 'hoàn thành' (completed)
         $totalRevenue = $orderModel->where('status', 'completed')->sum('total_amount');
 
-        // Dữ liệu biểu đồ
-        $chartLabels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'];
-        $chartData = [5000000, 7000000, 12000000, 9000000, 15000000, 20000000];
+        // Lấy doanh thu của 12 tháng gần nhất
+        $revenueData = Order::where('status', 'completed')
+            ->where('order_date', '>=', date('Y-m-d H:i:s', strtotime('-12 months')))
+            ->select(
+                DB::raw('SUM(total_amount) as total_revenue'),
+                DB::raw("DATE_FORMAT(order_date, '%Y-%m') as month_year")
+            )
+            ->groupBy('month_year')
+            ->orderBy('month_year', 'asc')
+            ->get()
+            ->pluck('total_revenue', 'month_year');
 
+        // 12 tháng (từ 11 tháng trước -> Hiện tại)
+        $chartLabels = [];
+        $chartData = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $monthKey = date('Y-m', strtotime("-$i months"));
+            $chartLabels[] = $monthKey;
+            // Nếu tháng đó có doanh thu thì lấy, không có thì = 0
+            $chartData[] = $revenueData[$monthKey] ?? 0;
+        }
         return [
             'totalProducts' => $totalProducts,
             'totalOrders' => $totalOrders,
@@ -56,9 +78,43 @@ class ManagerController
     {
         $this->checkAdminSession();
         $adminInfo = $this->getAdminInfo();
-        $products = new Product();
-        $products = $products->all();
         $dashboardData = $this->getDashboardData();
+
+
+        // Top 5 sản phẩm bán chạy
+        $topProducts = \App\Models\OrderItem::select(
+            'product_id',
+            DB::raw('SUM(order_items.quantity) as total_sold')
+        )
+            ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->where('orders.status', 'completed')
+            ->groupBy('product_id')
+            ->orderBy('total_sold', 'desc')
+            ->limit(5)
+            ->with('product')
+            ->get();
+
+        // Top 5 khách hàng chi tiêu nhiều nhất
+        $topCustomers = User::select(
+            'users.id',
+            'users.username',
+            'users.full_name',
+            'users.avatar',
+            DB::raw('SUM(orders.total_amount) as total_spent'),
+            DB::raw('COUNT(orders.order_id) as total_orders')
+        )
+            ->join('orders', 'users.id', '=', 'orders.user_id')
+            ->where('orders.status', 'completed')
+            ->groupBy('users.id', 'users.username', 'users.full_name', 'users.avatar')
+            ->orderBy('total_spent', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Tình trạng kho
+        $lowStockProducts = Product::orderBy('stock', 'asc')
+            ->limit(5)
+            ->get();
+
         include __DIR__ . '/../Views/manager/layouts/admin.php';
     }
 
@@ -72,14 +128,17 @@ class ManagerController
         $page = max(1, intval($_GET['page'] ?? 1));
         $search = $_GET['search'] ?? null;
 
-        // Build query and get totals
+        // Build query
         $query = Product::query();
-        $total = $query->count();
 
         // Search
         if ($search) {
             $query->where('product_name', 'LIKE', '%' . $search . '%');
         }
+
+        // Get totals
+        $total = $query->count();
+
         $products = $query->orderBy('created_at', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -102,9 +161,12 @@ class ManagerController
         $search = $_GET['search'] ?? null;
 
         $query = User::withCount('orders')
-            ->withSum('orders as total_spent', 'total_amount');
-
-        $total = $query->count();
+            ->withSum(
+                ['orders as total_spent' => function ($query) {
+                    $query->where('status', 'completed');
+                }],
+                'total_amount'
+            );
 
         // Search
         if ($search) {
@@ -113,6 +175,8 @@ class ManagerController
                     ->orWhere('full_name', 'LIKE', '%' . $search . '%');
             });
         }
+
+        $total = $query->count();
 
         $users = $query->orderBy('id', 'desc')
             ->offset(($page - 1) * $perPage)
