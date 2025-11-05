@@ -6,7 +6,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-medium text-gray-900">Doanh thu</h3>
+            <h3 class="text-lg font-medium text-gray-900">Tổng doanh thu</h3>
             <p class="text-3xl font-bold text-green-600 mt-2"><?= number_format($totalRevenue) ?>₫</p>
         </div>
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -113,7 +113,9 @@
 
     <div class="mt-6 bg-white rounded-lg shadow-md overflow-hidden">
         <h3 class="text-lg font-semibold text-gray-900 p-4 border-b">Biểu đồ doanh thu 12 tháng gần nhất</h3>
-        <canvas id="revenueChart" class="w-full h-64"></canvas>
+        <div class="p-4">
+            <canvas id="revenueChart" class="w-full h-64"></canvas>
+        </div>
     </div>
 
 </section>
@@ -122,16 +124,15 @@
     // Vẽ biểu đồ doanh thu
     const ctx = document.getElementById('revenueChart').getContext('2d');
     const revenueChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: <?= json_encode($chartLabels) ?>,
             datasets: [{
                 label: 'Doanh thu (VND)',
                 data: <?= json_encode($chartData) ?>,
-                borderColor: 'rgba(99, 102, 241, 1)',
-                backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                fill: true,
-                tension: 0.4
+                backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                borderColor: 'rgba(79, 70, 229, 1)',
+                borderWidth: 1,
             }]
         },
         options: {
@@ -146,6 +147,11 @@
                                 currency: 'VND'
                             }).format(value);
                         }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
                     }
                 }
             },
@@ -166,6 +172,9 @@
                             return label;
                         }
                     }
+                },
+                legend: {
+                    display: false
                 }
             }
         }
