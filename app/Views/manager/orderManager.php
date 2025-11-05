@@ -4,11 +4,24 @@
     </header>
 
     <form method="GET" action="/manager/orders" class="mb-4">
-        <div class="flex">
+        <div class="flex flex-col md:flex-row gap-2">
             <input type="text" name="search" placeholder="Tìm theo tên đăng nhập hoặc họ tên khách hàng..."
-                class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value="<?= htmlspecialchars($search ?? '') ?>">
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 whitespace-nowrap">
+
+            <select name="status" class="w-full md:w-auto px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">Tất cả đơn hàng</option>
+                <option value="pending" <?= (isset($status) && $status === 'pending') ? 'selected' : '' ?>>
+                    Đơn đang chờ thanh toán
+                </option>
+                <option value="completed" <?= (isset($status) && $status === 'completed') ? 'selected' : '' ?>>
+                    Đơn đã hoàn thành
+                </option>
+                <option value="cancelled" <?= (isset($status) && $status === 'cancelled') ? 'selected' : '' ?>>
+                    Đơn đã hủy
+                </option>
+            </select>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 whitespace-nowrap">
                 Tìm kiếm
             </button>
         </div>
@@ -129,7 +142,13 @@
 
     <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
         <div class="mt-6 flex items-center justify-center space-x-2">
-            <?php $searchParam = isset($search) ? '&search=' . urlencode($search) : ''; ?>
+            <?php
+            $queryParams = [];
+            if (isset($search) && $search) $queryParams['search'] = $search;
+            if (isset($status) && $status) $queryParams['status'] = $status;
+            $queryString = http_build_query($queryParams);
+            $searchParam = $queryString ? '&' . $queryString : '';
+            ?>
             <?php if ($ordersCurrentPage > 1): ?>
                 <a href="/manager/orders?page=<?= $ordersCurrentPage - 1 ?><?= $searchParam ?>" class="px-3 py-1 bg-gray-200 rounded-md text-sm hover:bg-gray-300">&laquo; Trước</a>
             <?php else: ?>

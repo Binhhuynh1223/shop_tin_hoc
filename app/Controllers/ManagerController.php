@@ -199,6 +199,8 @@ class ManagerController
         $page = max(1, intval($_GET['page'] ?? 1));
         $search = $_GET['search'] ?? null;
 
+        $status = $_GET['status'] ?? null;
+
         $query = Order::with(['user', 'items.product'])
             ->orderBy('order_date', 'desc');
 
@@ -208,6 +210,11 @@ class ManagerController
                 $q->where('username', 'LIKE', '%' . $search . '%')
                     ->orWhere('full_name', 'LIKE', '%' . $search . '%');
             });
+        }
+
+        // Filter by status
+        if ($status && in_array($status, ['pending', 'completed', 'cancelled'])) {
+            $query->where('status', $status);
         }
 
         $total = $query->count();
