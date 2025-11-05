@@ -4,8 +4,6 @@ use App\Controllers\ManagerController;
 use App\Controllers\ProductController;
 use App\Controllers\UserController;
 use App\Controllers\OrderController;
-use App\Models\Order;
-use Illuminate\Database\Capsule\Manager;
 
 $router->mount('/manager', function () use ($router) {
 
