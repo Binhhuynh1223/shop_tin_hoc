@@ -41,7 +41,7 @@
                 ?>
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden" id="order-card-<?= $order->order_id ?>">
-                    <div class="bg-gray-50 p-4 border-b grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="bg-gray-50 p-4 border-b grid grid-cols-2 md:grid-cols-5 gap-4 text-sm items-center">
                         <div>
                             <p class="text-gray-500">Mã đơn hàng</p>
                             <p class="font-medium text-gray-900">#<?= $order->order_id ?></p>
@@ -57,6 +57,13 @@
                         <div>
                             <p class="text-gray-500">Phương thức</p>
                             <p class="font-medium text-gray-900 uppercase"><?= htmlspecialchars($order->payment_method) ?></p>
+                        </div>
+                        <div class="text-right">
+                            <a href="/manager/orders/invoice/<?= $order->order_id ?>"
+                                target="_blank"
+                                class="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 focus-ring">
+                                Xuất Hóa đơn
+                            </a>
                         </div>
                     </div>
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">

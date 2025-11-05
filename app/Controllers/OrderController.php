@@ -274,4 +274,28 @@ class OrderController extends BaseController
             exit;
         }
     }
+
+    /**
+     * *** HÀM TẠO HÓA ĐƠN ***
+     */
+    public function generateInvoice($orderId)
+    {
+        try {
+            AuthMiddleware::requireAdmin();
+
+            // Lấy tất cả thông tin liên quan: user, items, và product trong từng item
+            $order = Order::with(['user', 'items.product'])->find($orderId);
+
+            if (!$order) {
+                echo "Không tìm thấy đơn hàng.";
+                exit;
+            }
+
+            // Hiển thị hóa đơn
+            $this->render('manager/invoice_template', ['order' => $order]);
+        } catch (\Exception $e) {
+            echo "Đã xảy ra lỗi: " . $e->getMessage();
+            exit;
+        }
+    }
 }

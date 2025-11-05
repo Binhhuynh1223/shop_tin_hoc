@@ -19,7 +19,7 @@ $brand = $products->all()->toArray() ?? [];
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tin Học AC</title>
+    <title>Shop Tin Học</title>
     <meta name="description" content="Cửa hàng tin học, laptop, linh kiện, phụ kiện. Giao diện responsive, rõ ràng, dễ sử dụng." />
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Thêm Font Awesome CDN để sử dụng icon -->
@@ -125,8 +125,8 @@ $brand = $products->all()->toArray() ?? [];
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-4">
                     <a href="/" class="inline-flex items-center gap-2">
-                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-accent to-green-600 flex items-center justify-center text-white font-semibold">AC</div>
-                        <span class="text-lg font-semibold">Tin Học AC</span>
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-accent to-green-600 flex items-center justify-center text-white font-semibold">S</div>
+                        <span class="text-lg font-semibold">Shop Tin Học</span>
                     </a>
                 </div>
 
