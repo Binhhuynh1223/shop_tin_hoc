@@ -9,6 +9,7 @@
                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value="<?= htmlspecialchars($search ?? '') ?>">
 
+            <!-- Filter by status -->
             <select name="status" class="w-full md:w-auto px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <option value="">Tất cả đơn hàng</option>
                 <option value="pending" <?= (isset($status) && $status === 'pending') ? 'selected' : '' ?>>
@@ -21,6 +22,12 @@
                     Đơn đã hủy
                 </option>
             </select>
+
+            <!-- Filter by date -->
+            <input type="date" name="date"
+                class="w-full md:w-auto px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value="<?= htmlspecialchars($date ?? '') ?>">
+
             <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 whitespace-nowrap">
                 Tìm kiếm
             </button>
@@ -140,12 +147,14 @@
         <?php endif; ?>
     </div>
 
+    <!-- Pagination -->
     <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
         <div class="mt-6 flex items-center justify-center space-x-2">
             <?php
             $queryParams = [];
             if (isset($search) && $search) $queryParams['search'] = $search;
             if (isset($status) && $status) $queryParams['status'] = $status;
+            if (isset($date) && $date) $queryParams['date'] = $date;
             $queryString = http_build_query($queryParams);
             $searchParam = $queryString ? '&' . $queryString : '';
             ?>

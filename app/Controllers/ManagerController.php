@@ -197,14 +197,15 @@ class ManagerController
         // Pagination settings
         $perPage = 5;
         $page = max(1, intval($_GET['page'] ?? 1));
-        $search = $_GET['search'] ?? null;
 
+        $search = $_GET['search'] ?? null;
         $status = $_GET['status'] ?? null;
+        $date = $_GET['date'] ?? null;
 
         $query = Order::with(['user', 'items.product'])
             ->orderBy('order_date', 'desc');
 
-        // Search
+        // Search orders by username or full name
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('username', 'LIKE', '%' . $search . '%')
@@ -215,6 +216,11 @@ class ManagerController
         // Filter by status
         if ($status && in_array($status, ['pending', 'completed', 'cancelled'])) {
             $query->where('status', $status);
+        }
+
+        // Filter by date
+        if ($date) {
+            $query->whereDate('order_date', $date);
         }
 
         $total = $query->count();
