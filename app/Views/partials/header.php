@@ -9,6 +9,7 @@ $laptopproducts = $products->getByCategory('Laptop') ?? [];
 $serverproducts = $products->getByCategory('Server') ?? [];
 $softwareproducts = $products->getByCategory('Software') ?? [];
 $routerproducts = $products->getByCategory('Router') ?? [];
+$printerproducts = $products->getByCategory('Printer') ?? [];
 
 
 $brand = $products->all()->toArray() ?? [];
@@ -203,6 +204,24 @@ $brand = $products->all()->toArray() ?? [];
                                 <?php foreach ($routerBrands as $routerBrand): ?>
                                     <a href="/products/router/<?= htmlspecialchars($routerBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($routerBrand ?? '') ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Máy in -->
+                    <div class="relative group inline-block">
+                        <a href="/products/printer" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                            <i class="fas fa-print"></i>
+                            <span>Máy in</span>
+                        </a>
+                        <div class="absolute left-0 hidden group-hover:block top-[100%] w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                            <?php if (count($printerproducts) > 0): ?>
+                                <?php $printerBrands = array_unique(array_column($printerproducts, 'brand') ?? []); ?>
+                                <?php foreach ($printerBrands as $printerBrand): ?>
+                                    <a href="/products/printer/<?= htmlspecialchars($printerBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <?= htmlspecialchars($printerBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
                             <?php endif; ?>
