@@ -2,7 +2,7 @@
 
 use App\Models\Product;
 
-$products_home = Product::orderBy('created_at', 'desc')->take(7)->get();
+$products_home = Product::orderBy('product_id', 'asc')->take(10)->get();
 ?>
 
 <?php
