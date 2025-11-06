@@ -134,9 +134,8 @@ class Order extends Model
                 }
             }
 
-            // Cập nhật trạng thái đơn hàng
-            $this->status = 'cancelled';
-            $this->save();
+            // Xóa đơn hàng
+            $this->delete();
 
             Capsule::commit();
             return true;
