@@ -135,7 +135,7 @@ $brand = $products->all()->toArray() ?? [];
                     </a>
                 </div>
 
-                <nav class="hidden md:flex items-center gap-8 text-sm" aria-label="Main">
+                <nav class="hidden md:flex items-center gap-6 text-sm" aria-label="Main">
                     <?php
                     // Get unique brands
                     $uniqueBrands = array_unique(array_column($brand, 'brand') ?? []);

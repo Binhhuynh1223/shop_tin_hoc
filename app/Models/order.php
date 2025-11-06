@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Product;
+use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -11,7 +13,7 @@ class Order extends Model
 {
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
-    public $timestamps = false; // DB dùng order_date thay created_at
+    public $timestamps = false;
 
     protected $fillable = [
         'user_id',
@@ -89,24 +91,46 @@ class Order extends Model
     }
 
     /**
-     * Hủy đơn hàng, hoàn trả stock
+     * Hủy đơn hàng, hoàn trả stock VÀ hoàn trả item về giỏ hàng.
      */
     public function cancel()
     {
-        // Chỉ cho phép hủy đơn hàng đang 'pending' (chưa thanh toán)
+        // Chỉ cho phép hủy đơn hàng đang 'pending'
         if ($this->status !== 'pending') {
             throw new \Exception('Không thể hủy đơn hàng ở trạng thái này.');
         }
 
         Capsule::beginTransaction();
         try {
-            // Hoàn trả stock
-            // Đảm bảo đã load 'items' trước khi gọi hàm này
+            // Lấy hoặc tạo giỏ hàng cho user
+            $cart = Cart::firstOrCreate(['user_id' => $this->user_id]);
+
+            // Hoàn trả stock VÀ thêm lại sản phẩm vào giỏ hàng
             foreach ($this->items as $item) {
+
+                // Hoàn trả stock
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $product->stock += $item->quantity;
                     $product->save();
+                }
+
+                // Kiểm tra xem item này đã có trong giỏ hàng chưa
+                $cartItem = CartItem::where('cart_id', $cart->cart_id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
+                if ($cartItem) {
+                    // Nếu đã có, cộng dồn số lượng
+                    $cartItem->quantity += $item->quantity;
+                    $cartItem->save();
+                } else {
+                    // Nếu chưa có, tạo mới (hoàn trả về giỏ hàng)
+                    CartItem::create([
+                        'cart_id' => $cart->cart_id,
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                    ]);
                 }
             }
 

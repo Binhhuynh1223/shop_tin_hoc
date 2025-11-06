@@ -6,7 +6,7 @@ use App\Middleware\AuthMiddleware;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\User;
-use App\Services\VNPAYService; // Thêm use VNPAYService
+use App\Services\VNPAYService;
 
 class OrderController extends BaseController
 {
@@ -189,12 +189,11 @@ class OrderController extends BaseController
             // Redirect đến thông báo đơn hàng thành công
             $this->redirect('/order/success/' . $orderId);
         } else {
-            // Thanh toán thất bại -> Hủy đơn hàng và hoàn stock
-            if ($order->status === 'cancelled') {
+            // Thanh toán thất bại, hủy đơn hàng
+            if ($order->status === 'pending') {
                 $order->cancel();
             }
-            // Hủy thanh toán
-            $order->cancel();
+                        
             $this->redirect('/order/failure/' . $orderId);
         }
     }
@@ -227,7 +226,7 @@ class OrderController extends BaseController
             }
 
             $orderId = $vnpData['vnp_TxnRef'];
-            $order = Order::find($orderId);
+            $order = Order::with('items')->find($orderId); // Tải kèm 'items'
 
             // Kiểm tra đơn hàng
             if (!$order) {
