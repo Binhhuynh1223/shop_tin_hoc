@@ -11,7 +11,7 @@
         </div>
 
         <div class="p-6 md:p-8 text-center space-y-6">
-            <h2 class="text-xl font-semibold text-gray-800">Đơn hàng: #<?= htmlspecialchars($order->order_id) ?></h2>
+            <h2 class="text-xl font-semibold text-gray-800">Đơn hàng đã được hủy</h2>
 
             <p class="text-gray-600">
                 Rất tiếc, quá trình thanh toán cho đơn hàng của bạn đã thất bại hoặc bị hủy.
