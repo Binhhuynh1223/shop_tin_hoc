@@ -257,11 +257,6 @@ $brand = $products->all()->toArray() ?? [];
                             <?php endif; ?>
                         </div>
                     </div>
-
-                    <a href="#" class="hover:text-accent focus-ring inline-flex flex-col items-center">
-                        <i class="fas fa-tools"></i>
-                        <span>Dịch vụ</span>
-                    </a>
                 </nav>
 
                 <div class="flex items-center gap-3">
