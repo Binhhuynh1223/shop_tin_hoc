@@ -10,10 +10,10 @@ include __DIR__ . '/partials/header.php';
 ?>
 
 <!-- HERO -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
         <div class="lg:col-span-2">
-            <div class="rounded-2xl bg-gradient-to-r from-white via-slate-50 to-white p-14 shadow">
+            <div class="rounded-2xl bg-gradient-to-r from-white via-slate-50 to-white p-10 shadow">
                 <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">Desktop, Laptop, thiết bị mạng chất lượng</h1>
                 <p class="mt-4 text-slate-600">Sản phẩm chính hãng. Bảo hành rõ ràng. Dịch vụ cài đặt, sửa chữa nhanh chóng.</p>
                 <div class="mt-6 flex gap-3">
@@ -56,7 +56,8 @@ include __DIR__ . '/partials/header.php';
                     <article class="bg-white rounded-lg shadow-sm overflow-hidden min-w-[250px] max-w-[250px] mr-4">
                         <img src="<?= htmlspecialchars($product->image_url) ?>"
                             alt="<?= htmlspecialchars($product->product_name) ?>"
-                            class="w-full h-40 object-cover" />
+                            class="w-full h-40 object-cover"
+                            ondragstart="return false;" />
                         <div class="p-4">
                             <h3 class="font-semibold"><?= htmlspecialchars($product->product_name) ?></h3>
                             <p class="mt-1 text-sm text-slate-600 line-clamp-2">
@@ -102,23 +103,45 @@ include __DIR__ . '/partials/header.php';
         include __DIR__ . '/partials/footer.php';
         ?>
 
-        <!-- Script slider mượt -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const slider = document.getElementById('product-slider');
-                const cards = slider.querySelectorAll('article');
 
                 // Nhân đôi nội dung để tạo hiệu ứng liên tục
                 slider.innerHTML += slider.innerHTML;
 
                 let position = 0;
-                const speed = 0.2; // tốc độ trượt (px/frame)
+                const speed = 0.2; // tốc độ trượt
+
+                let halfWidth = 0;
+                let isDragging = false;
+                let startX;
+                let startPosition;
 
                 function animate() {
-                    position -= speed;
-                    if (Math.abs(position) >= slider.scrollWidth / 2) {
-                        position = 0; // quay lại đầu khi hết nửa chuỗi
+                    if (halfWidth === 0 && slider.scrollWidth > 0) {
+                        halfWidth = slider.scrollWidth / 2;
                     }
+
+                    if (!isDragging) {
+                        position -= speed;
+                    }
+
+                    if (halfWidth > 0) {
+                        if (Math.abs(position) >= halfWidth) {
+                            position += halfWidth;
+                            if (isDragging) {
+                                startPosition += halfWidth;
+                            }
+                        }
+                        else if (position > 0) {
+                            position -= halfWidth;
+                            if (isDragging) {
+                                startPosition -= halfWidth;
+                            }
+                        }
+                    }
+
                     slider.style.transform = `translateX(${position}px)`;
                     requestAnimationFrame(animate);
                 }
@@ -127,6 +150,37 @@ include __DIR__ . '/partials/header.php';
                 slider.style.display = 'flex';
                 slider.style.willChange = 'transform';
                 slider.style.transition = 'none';
+                slider.style.cursor = 'grab'; // Thêm cursor 'grab'
+                slider.style.userSelect = 'none'; // Ngăn chọn text khi kéo
+
+                // Khi nhấn chuột xuống
+                slider.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.pageX; // Vị trí X ban đầu của chuột
+                    startPosition = position; // Vị trí 'transform' hiện tại
+                    slider.style.cursor = 'grabbing'; // Đổi cursor
+                });
+
+                // Khi di chuyển chuột
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    const walk = e.pageX - startX;
+                    position = startPosition + walk;
+                });
+
+                // Khi thả chuột
+                window.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        slider.style.cursor = 'grab'; // Trả cursor về
+                    }
+                });
+
+                // Chống hành vi kéo ảnh (drag-and-drop) của trình duyệt
+                slider.querySelectorAll('img').forEach(img => {
+                    img.addEventListener('dragstart', (e) => e.preventDefault());
+                });
 
                 requestAnimationFrame(animate);
             });

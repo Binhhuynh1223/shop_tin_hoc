@@ -118,7 +118,7 @@ include __DIR__ . '/partials/header.php';
     </section>
 
     <section class="bg-white rounded-lg shadow-sm p-6 mt-8">
-        <h2 class="text-xl font-bold mb-6">Lịch sử đơn hàng</h2>
+        <h2 id="order-history" class="text-xl font-bold mb-6">Lịch sử đơn hàng</h2>
 
         <div class="space-y-6">
             <?php if ($orders->isEmpty()): ?>

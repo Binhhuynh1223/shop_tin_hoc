@@ -1,18 +1,18 @@
 <!-- Slider -->
-<aside class="rounded-2xl bg-white p-4 shadow">
+<aside class="rounded-md bg-white p-4 shadow">
     <div class="slider-container" style="overflow: hidden; position: relative; height: 280px;">
         <div class="slider-wrapper" style="display: flex; transition: transform 0.5s ease;">
             <div class="slide" style="min-width: 100%;">
-                <img src="/images/sliders/1.png" alt="Slide 1" class="w-full h-[260px] object-cover rounded-lg shadow-sm">
+                <img src="/images/sliders/1.png" alt="Slide 1" class="w-full h-[280px] object-cover rounded-lg shadow-sm">
             </div>
             <div class="slide" style="min-width: 100%;">
-                <img src="/images/sliders/2.jpg" alt="Slide 2" class="w-full h-[260px] object-cover rounded-lg shadow-sm">
+                <img src="/images/sliders/2.jpg" alt="Slide 2" class="w-full h-[280px] object-cover rounded-lg shadow-sm">
             </div>
             <div class="slide" style="min-width: 100%;">
-                <img src="/images/sliders/3.jpeg" alt="Slide 3" class="w-full h-[260px] object-cover rounded-lg shadow-sm">
+                <img src="/images/sliders/3.jpeg" alt="Slide 3" class="w-full h-[280px] object-cover rounded-lg shadow-sm">
             </div>
             <div class="slide" style="min-width: 100%;">
-                <img src="/images/sliders/4.jpg" alt="Slide 4" class="w-full h-[260px] object-cover rounded-lg shadow-sm">
+                <img src="/images/sliders/4.jpg" alt="Slide 4" class="w-full h-[280px] object-cover rounded-lg shadow-sm">
             </div>
         </div>
         <!-- Slider Controls -->
@@ -20,6 +20,7 @@
             <button class="slider-dot w-2.5 h-2.5 rounded-full bg-black/20 transition-colors" data-index="0"></button>
             <button class="slider-dot w-2.5 h-2.5 rounded-full bg-black/20 transition-colors" data-index="1"></button>
             <button class="slider-dot w-2.5 h-2.5 rounded-full bg-black/20 transition-colors" data-index="2"></button>
+            <button class="slider-dot w-2.5 h-2.5 rounded-full bg-black/20 transition-colors" data-index="3"></button>
         </div>
         <!-- Navigation Arrows -->
         <button class="slider-nav prev absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/20 hover:bg-black/30 flex items-center justify-center transition-colors">

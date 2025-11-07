@@ -307,7 +307,7 @@ $brand = $products->all()->toArray() ?? [];
                                         <p class="text-xs text-gray-500"><?= htmlspecialchars($_SESSION['user']['role'] ?? '') ?></p>
                                     </div>
                                 </a>
-                                <div class="absolute right-0 hidden group-hover:block top-[100%] w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <div class="absolute center hidden group-hover:block top-[100%] w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                                     <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:text-accent forcus-ring">
                                         <i class="fas fa-user"></i> Xem hồ sơ
                                     </a>
@@ -350,7 +350,7 @@ $brand = $products->all()->toArray() ?? [];
                                 <p class="text-sm text-gray-500">Xem hồ sơ của bạn</p>
                             </div>
                         </a>
-                        <a href="/logout" class="text-red-600 hover:text-red-400 p-2" aria-label="Đăng xuất">
+                        <a href="/logout" class="hover:text-accent p-2" aria-label="Đăng xuất">
                             <i class="fas fa-sign-out-alt text-2xl"></i>
                         </a>
                     </div>
@@ -366,6 +366,10 @@ $brand = $products->all()->toArray() ?? [];
                 <?php endif; ?>
             </div>
             <nav class="p-4 space-y-3 flex-1 overflow-y-auto">
+                <a href="/profile/#order-history" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                    <i class="fas fa-history w-5 text-center"></i>
+                    <span>Lịch sử đơn hàng</span>
+                </a>
                 <a href="/products/desktop" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-desktop w-5 text-center"></i>
                     <span>Desktop</span>

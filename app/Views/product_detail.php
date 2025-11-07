@@ -146,7 +146,6 @@ include __DIR__ . '/partials/header.php';
             <div class="mb-6">
                 <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Số lượng:</label>
                 <input type="number" id="quantity" name="quantity" min="1" max="<?= $product->stock ?>" value="1" class="w-20 text-center rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                <span class="ml-2 text-sm text-gray-500"> (Còn <?= $product->stock ?> sản phẩm)</span>
             </div>
 
             <div class="flex space-x-4 mb-6">
