@@ -394,10 +394,6 @@ $brand = $products->all()->toArray() ?? [];
                     <i class="fas fa-code w-5 text-center"></i>
                     <span>Phần mềm</span>
                 </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
-                    <i class="fas fa-tools w-5 text-center"></i>
-                    <span>Dịch vụ</span>
-                </a>
             </nav>
         </div>
     </header>

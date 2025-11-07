@@ -151,11 +151,16 @@
     <?php if (isset($ordersTotalPages) && $ordersTotalPages > 1): ?>
         <div class="mt-6 flex items-center justify-center space-x-2">
             <?php
+            // Tạo một mảng để chứa tất cả các tham số query
             $queryParams = [];
             if (isset($search) && $search) $queryParams['search'] = $search;
             if (isset($status) && $status) $queryParams['status'] = $status;
             if (isset($date) && $date) $queryParams['date'] = $date;
+
+            // Xây dựng chuỗi query từ mảng
             $queryString = http_build_query($queryParams);
+
+            // Gán vào biến $searchParam
             $searchParam = $queryString ? '&' . $queryString : '';
             ?>
             <?php if ($ordersCurrentPage > 1): ?>
