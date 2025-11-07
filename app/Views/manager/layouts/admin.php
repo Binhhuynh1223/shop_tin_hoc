@@ -31,12 +31,9 @@ if ($path === '/manager') {
 <?php include __DIR__ . '/../components/head.php'; ?>
 
 <body class="bg-gray-50 min-h-screen text-gray-800 antialiased font-sans">
-    <div class="flex min-h-screen">
-        <?php include __DIR__ . '/../components/sidebar.php'; ?> <!-- Truyền $currentPage vào sidebar -->
-
-        <main class="flex-1 overflow-auto">
-            <?php include __DIR__ . '/../components/header.php'; ?> <!-- Sử dụng $name, $avatar -->
-            <?php
+    <div class="flex min-h-screen relative md:static">
+        <?php include __DIR__ . '/../components/sidebar.php'; ?> <main class="flex-1 overflow-auto">
+            <?php include __DIR__ . '/../components/header.php'; ?> <?php
             // Include correct manager view based on slug (ignore querystring)
             if ($currentPage === 'manager') {
                 include __DIR__ . '/../manager.php';
@@ -52,6 +49,36 @@ if ($path === '/manager') {
             ?>
         </main>
     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('admin-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const openBtn = document.getElementById('mobile-menu-toggle');
+        const closeBtn = document.getElementById('mobile-menu-close');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        if (openBtn) {
+            openBtn.addEventListener('click', openSidebar);
+        }
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeSidebar);
+        }
+        if (overlay) {
+            overlay.addEventListener('click', closeSidebar);
+        }
+    });
+</script>
+
 </body>
 
 </html>
