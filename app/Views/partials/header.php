@@ -159,7 +159,7 @@ $brand = $products->all()->toArray() ?? [];
                     $uniqueBrands = array_unique(array_column($brand, 'brand') ?? []);
                     ?>
                     <div class="relative group inline-block">
-                        <a href="/products/desktop" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                        <a href="/products?category=Desktop" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
                             <i class="fas fa-desktop"></i>
                             <span>Desktop</span>
                         </a>
@@ -167,7 +167,7 @@ $brand = $products->all()->toArray() ?? [];
                             <?php if (count($desktopproducts) > 0): ?>
                                 <?php $desktopBrands = array_unique(array_column($desktopproducts, 'brand') ?? []); ?>
                                 <?php foreach ($desktopBrands as $desktopBrand): ?>
-                                    <a href="/products/desktop/<?= htmlspecialchars($desktopBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="/products?category=Desktop&brand=<?= htmlspecialchars($desktopBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($desktopBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -175,7 +175,7 @@ $brand = $products->all()->toArray() ?? [];
                         </div>
                     </div>
                     <div class="relative group inline-block">
-                        <a href="/products/laptop" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                        <a href="/products?category=Laptop" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
                             <i class="fas fa-laptop"></i>
                             <span>Laptop</span>
                         </a>
@@ -183,7 +183,7 @@ $brand = $products->all()->toArray() ?? [];
                             <?php if (count($laptopproducts) > 0): ?>
                                 <?php $laptopBrands = array_unique(array_column($laptopproducts, 'brand') ?? []); ?>
                                 <?php foreach ($laptopBrands as $laptopBrand): ?>
-                                    <a href="/products/laptop/<?= htmlspecialchars($laptopBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="/products?category=Laptop&brand=<?= htmlspecialchars($laptopBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($laptopBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -191,7 +191,7 @@ $brand = $products->all()->toArray() ?? [];
                         </div>
                     </div>
                     <div class="relative group inline-block">
-                        <a href="/products/server" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                        <a href="/products?category=Server" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
                             <i class="fas fa-server"></i>
                             <span>Server</span>
                         </a>
@@ -199,7 +199,7 @@ $brand = $products->all()->toArray() ?? [];
                             <?php if (count($serverproducts) > 0): ?>
                                 <?php $serverBrands = array_unique(array_column($serverproducts, 'brand') ?? []); ?>
                                 <?php foreach ($serverBrands as $serverBrand): ?>
-                                    <a href="/products/server/<?= htmlspecialchars($serverBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="/products?category=Server&brand=<?= htmlspecialchars($serverBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($serverBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -208,7 +208,7 @@ $brand = $products->all()->toArray() ?? [];
                     </div>
 
                     <div class="relative group inline-block">
-                        <a href="/products/router" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                        <a href="/products?category=Router" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
                             <i class="fas fa-network-wired"></i>
                             <span>Router</span>
                         </a>
@@ -216,7 +216,7 @@ $brand = $products->all()->toArray() ?? [];
                             <?php if (count($routerproducts) > 0): ?>
                                 <?php $routerBrands = array_unique(array_column($routerproducts, 'brand') ?? []); ?>
                                 <?php foreach ($routerBrands as $routerBrand): ?>
-                                    <a href="/products/router/<?= htmlspecialchars($routerBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="/products?category=Router&brand=<?= htmlspecialchars($routerBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($routerBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -225,7 +225,7 @@ $brand = $products->all()->toArray() ?? [];
                     </div>
 
                     <div class="relative group inline-block">
-                        <a href="/products/printer" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                        <a href="/products?category=Printer" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
                             <i class="fas fa-print"></i>
                             <span>Máy in</span>
                         </a>
@@ -233,7 +233,7 @@ $brand = $products->all()->toArray() ?? [];
                             <?php if (count($printerproducts) > 0): ?>
                                 <?php $printerBrands = array_unique(array_column($printerproducts, 'brand') ?? []); ?>
                                 <?php foreach ($printerBrands as $printerBrand): ?>
-                                    <a href="/products/printer/<?= htmlspecialchars($printerBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="/products?category=Printer&brand=<?= htmlspecialchars($printerBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($printerBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -242,7 +242,7 @@ $brand = $products->all()->toArray() ?? [];
                     </div>
 
                     <div class="relative group inline-block">
-                        <a href="/products/software" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
+                        <a href="/products?category=Software" class="hover:text-accent focus-ring inline-flex flex-col items-center" title="Xem tất cả sản phẩm">
                             <i class="fas fa-code"></i>
                             <span>Phần mềm</span>
                         </a>
@@ -250,7 +250,7 @@ $brand = $products->all()->toArray() ?? [];
                             <?php if (count($softwareproducts) > 0): ?>
                                 <?php $softwareBrands = array_unique(array_column($softwareproducts, 'brand') ?? []); ?>
                                 <?php foreach ($softwareBrands as $softwareBrand): ?>
-                                    <a href="/products/software/<?= htmlspecialchars($softwareBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <a href="/products?category=Software&brand=<?= htmlspecialchars($softwareBrand ?? '') ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <?= htmlspecialchars($softwareBrand ?? '') ?>
                                     </a>
                                 <?php endforeach; ?>
@@ -365,27 +365,27 @@ $brand = $products->all()->toArray() ?? [];
                     <i class="fas fa-history w-5 text-center"></i>
                     <span>Lịch sử đơn hàng</span>
                 </a>
-                <a href="/products/desktop" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                <a href="/products?category=Desktop" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-desktop w-5 text-center"></i>
                     <span>Desktop</span>
                 </a>
-                <a href="/products/laptop" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                <a href="/products?category=Laptop" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-laptop w-5 text-center"></i>
                     <span>Laptop</span>
                 </a>
-                <a href="/products/server" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                <a href="/products?category=Server" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-server w-5 text-center"></i>
                     <span>Server</span>
                 </a>
-                <a href="/products/router" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                <a href="/products?category=Router" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-network-wired w-5 text-center"></i>
                     <span>Router</span>
                 </a>
-                <a href="/products/printer" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                <a href="/products?category=Printer" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-print w-5 text-center"></i>
                     <span>Máy in</span>
                 </a>
-                <a href="/products/software" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+                <a href="/products?category=Software" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
                     <i class="fas fa-code w-5 text-center"></i>
                     <span>Phần mềm</span>
                 </a>
