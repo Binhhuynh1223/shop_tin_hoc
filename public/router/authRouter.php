@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\GoogleAuthController;
 
 $router->get('/', function () {
     require_once __DIR__ . '/../../app/Views/home.php';
@@ -29,4 +30,12 @@ $router->get('/logout', function () {
     $authController->logout();
 });
 
+// Login email
+$router->get('/auth/google', function () {
+    (new GoogleAuthController())->redirectToGoogle();
+});
+
+$router->get('/auth/google/callback', function () {
+    (new GoogleAuthController())->handleGoogleCallback();
+});
 ?>
