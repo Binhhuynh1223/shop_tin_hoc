@@ -527,6 +527,36 @@ $brand = $products->all()->toArray() ?? [];
             });
         });
     </script>
+
+<!-- Tự log out sau 10p không hoạt động -->
+    <?php if (isset($_SESSION['user'])): ?>
+        <script>
+            (function() {
+                let inactivityTimer;
+                const timeoutDuration = 10 * 60 * 1000;
+
+                function resetTimer() {
+                    clearTimeout(inactivityTimer);
+                    inactivityTimer = setTimeout(logout, timeoutDuration);
+                }
+
+                function logout() {
+                    alert('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.');
+                    window.location.href = '/logout';
+                }
+
+                // Các sự kiện reset timer
+                window.addEventListener('mousemove', resetTimer, false);
+                window.addEventListener('mousedown', resetTimer, false);
+                window.addEventListener('keypress', resetTimer, false);
+                window.addEventListener('touchmove', resetTimer, false);
+                window.addEventListener('scroll', resetTimer, false);
+
+                // Khởi động timer
+                resetTimer();
+            })();
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>

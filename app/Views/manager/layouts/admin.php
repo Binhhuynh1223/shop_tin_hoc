@@ -34,50 +34,81 @@ if ($path === '/manager') {
     <div class="flex min-h-screen relative md:static">
         <?php include __DIR__ . '/../components/sidebar.php'; ?> <main class="flex-1 overflow-auto">
             <?php include __DIR__ . '/../components/header.php'; ?> <?php
-            // Include correct manager view based on slug (ignore querystring)
-            if ($currentPage === 'manager') {
-                include __DIR__ . '/../manager.php';
-            } elseif ($currentPage === 'products') {
-                include __DIR__ . '/../productManager.php';
-            } elseif ($currentPage === 'users') {
-                include __DIR__ . '/../userManager.php';
-            } elseif ($currentPage === 'orders') {
-                include __DIR__ . '/../orderManager.php';
-            } else {
-                include __DIR__ . '/../manager.php';
-            }
-            ?>
+                                                                    // Include correct manager view based on slug (ignore querystring)
+                                                                    if ($currentPage === 'manager') {
+                                                                        include __DIR__ . '/../manager.php';
+                                                                    } elseif ($currentPage === 'products') {
+                                                                        include __DIR__ . '/../productManager.php';
+                                                                    } elseif ($currentPage === 'users') {
+                                                                        include __DIR__ . '/../userManager.php';
+                                                                    } elseif ($currentPage === 'orders') {
+                                                                        include __DIR__ . '/../orderManager.php';
+                                                                    } else {
+                                                                        include __DIR__ . '/../manager.php';
+                                                                    }
+                                                                    ?>
         </main>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('admin-sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const openBtn = document.getElementById('mobile-menu-toggle');
-        const closeBtn = document.getElementById('mobile-menu-close');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const openBtn = document.getElementById('mobile-menu-toggle');
+            const closeBtn = document.getElementById('mobile-menu-close');
 
-        function openSidebar() {
-            sidebar.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-        }
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            }
 
-        function closeSidebar() {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        }
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
 
-        if (openBtn) {
-            openBtn.addEventListener('click', openSidebar);
-        }
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeSidebar);
-        }
-        if (overlay) {
-            overlay.addEventListener('click', closeSidebar);
-        }
-    });
-</script>
+            if (openBtn) {
+                openBtn.addEventListener('click', openSidebar);
+            }
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeSidebar);
+            }
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+        });
+    </script>
+
+<!-- Tự log out sau 10p không hoạt động -->
+    <?php if (isset($_SESSION['user'])): ?>
+        <script>
+            (function() {
+                let inactivityTimer;
+                const timeoutDuration = 10 * 60 * 1000;
+
+                function resetTimer() {
+                    // console.log('Reset admin timer');
+                    clearTimeout(inactivityTimer);
+                    inactivityTimer = setTimeout(logout, timeoutDuration);
+                }
+
+                function logout() {
+                    alert('Phiên đăng nhập đã hết hạn do không hoạt động.');
+                    window.location.href = '/logout';
+                }
+
+                // Các sự kiện reset timer
+                window.addEventListener('mousemove', resetTimer, false);
+                window.addEventListener('mousedown', resetTimer, false);
+                window.addEventListener('keypress', resetTimer, false);
+                window.addEventListener('touchmove', resetTimer, false);
+                window.addEventListener('scroll', resetTimer, false);
+
+                // Khởi động timer
+                resetTimer();
+            })();
+        </script>
+    <?php endif; ?>
 
 </body>
 

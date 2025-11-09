@@ -95,6 +95,8 @@ class AuthController
                 'avatar' => $user->avatar ?? 'https://static.vecteezy.com/system/resources/previews/006/487/912/non_2x/hacker-avatar-ilustration-free-vector.jpg'
             ];
 
+            $_SESSION['last_activity'] = time();
+
             if ($user->role === 'admin') {
                 header('Location: /manager');
                 exit;
