@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Product;
-use App\Models\Service;
 
 $products = new Product();
 $desktopproducts = $products->getByCategory('Desktop') ?? [];

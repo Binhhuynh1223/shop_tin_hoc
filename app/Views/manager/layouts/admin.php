@@ -33,20 +33,21 @@ if ($path === '/manager') {
 <body class="bg-gray-50 min-h-screen text-gray-800 antialiased font-sans">
     <div class="flex min-h-screen relative md:static">
         <?php include __DIR__ . '/../components/sidebar.php'; ?> <main class="flex-1 overflow-auto">
-            <?php include __DIR__ . '/../components/header.php'; ?> <?php
-                                                                    // Include correct manager view based on slug (ignore querystring)
-                                                                    if ($currentPage === 'manager') {
-                                                                        include __DIR__ . '/../manager.php';
-                                                                    } elseif ($currentPage === 'products') {
-                                                                        include __DIR__ . '/../productManager.php';
-                                                                    } elseif ($currentPage === 'users') {
-                                                                        include __DIR__ . '/../userManager.php';
-                                                                    } elseif ($currentPage === 'orders') {
-                                                                        include __DIR__ . '/../orderManager.php';
-                                                                    } else {
-                                                                        include __DIR__ . '/../manager.php';
-                                                                    }
-                                                                    ?>
+            <?php include __DIR__ . '/../components/header.php'; ?>
+            <?php
+            // Include correct manager view based on slug (ignore querystring)
+            if ($currentPage === 'manager') {
+                include __DIR__ . '/../manager.php';
+            } elseif ($currentPage === 'products') {
+                include __DIR__ . '/../productManager.php';
+            } elseif ($currentPage === 'users') {
+                include __DIR__ . '/../userManager.php';
+            } elseif ($currentPage === 'orders') {
+                include __DIR__ . '/../orderManager.php';
+            } else {
+                include __DIR__ . '/../manager.php';
+            }
+            ?>
         </main>
     </div>
 
@@ -79,7 +80,7 @@ if ($path === '/manager') {
         });
     </script>
 
-<!-- Tự log out sau 10p không hoạt động -->
+    <!-- Tự log out sau 10p không hoạt động -->
     <?php if (isset($_SESSION['user'])): ?>
         <script>
             (function() {

@@ -9,15 +9,6 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 class ManagerController
 {
-
-    private function checkAdminSession()
-    {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: /error');
-            exit;
-        }
-    }
-
     private function getAdminInfo()
     {
         $user = User::find($_SESSION['user']['id']);
@@ -76,7 +67,7 @@ class ManagerController
 
     public function index()
     {
-        $this->checkAdminSession();
+        \App\Middleware\AuthMiddleware::requireAdmin();
         $adminInfo = $this->getAdminInfo();
         $dashboardData = $this->getDashboardData();
 
@@ -120,7 +111,7 @@ class ManagerController
 
     public function products()
     {
-        $this->checkAdminSession();
+        \App\Middleware\AuthMiddleware::requireAdmin();
         $adminInfo = $this->getAdminInfo();
 
         // Pagination settings
@@ -152,7 +143,7 @@ class ManagerController
 
     public function users()
     {
-        $this->checkAdminSession();
+        \App\Middleware\AuthMiddleware::requireAdmin();
         $adminInfo = $this->getAdminInfo();
 
         // Pagination settings
@@ -191,7 +182,7 @@ class ManagerController
 
     public function orders()
     {
-        $this->checkAdminSession();
+        \App\Middleware\AuthMiddleware::requireAdmin();
         $adminInfo = $this->getAdminInfo();
 
         // Pagination settings

@@ -76,7 +76,7 @@ switch ($status) {
                 <h2 class="text-2xl font-bold text-gray-800">Shop Tin Học</h2>
                 <p class="text-gray-600 text-sm">123 Đường A, Quận B, TP. XYZ</p>
                 <p class="text-gray-600 text-sm">Hotline: 0123 456 789</p>
-                <p class="text-gray-600 text-sm">Email: info@tinhocac.com</p>
+                <p class="text-gray-600 text-sm">Email: shoptinhoc@support.com</p>
             </div>
         </div>
 
