@@ -172,7 +172,7 @@ class ProductController extends BaseController
             throw new \Exception('Không thể tải lên file ảnh');
         }
 
-        return '/images/products/' . $filename;
+        return '/public/images/products/' . $filename;
     }
 
     /**

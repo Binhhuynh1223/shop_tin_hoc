@@ -159,7 +159,7 @@ class UserController extends BaseController
         $uploadPath = $uploadDir . $filename;
 
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            return '/images/avatars/' . $filename;
+            return '/public/images/avatars/' . $filename;
         }
 
         throw new \Exception('Lỗi khi tải file avatar.');

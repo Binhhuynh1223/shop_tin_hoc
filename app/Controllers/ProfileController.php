@@ -60,7 +60,7 @@ class ProfileController extends BaseController
 
                 $filename = uniqid('avatar_', true) . '.' . $ext;
                 $uploadPath = $uploadDir . $filename;
-                $publicPath = '/images/avatars/' . $filename;
+                $publicPath = '/public/images/avatars/' . $filename;
 
                 if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
                     $data['avatar'] = $publicPath;

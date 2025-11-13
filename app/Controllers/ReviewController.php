@@ -48,7 +48,7 @@ class ReviewController extends BaseController
             throw new \Exception('Không thể tải lên file ảnh');
         }
 
-        return '/images/reviews/' . $filename;
+        return '/public/images/reviews/' . $filename;
     }
 
     /**
