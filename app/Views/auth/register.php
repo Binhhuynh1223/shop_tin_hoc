@@ -1,5 +1,4 @@
 <?php include_once __DIR__ . '/../partials/header.php'; ?>
-<?php include_once __DIR__ . '/../../Controllers/AuthController.php'; ?>
 
 <div class="register-container">
     <h2>Đăng ký</h2>

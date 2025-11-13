@@ -4,13 +4,24 @@ namespace App\Controllers;
 
 use App\Models\User;
 
-class AuthController
+class AuthController extends BaseController
 {
     protected $model;
 
     public function __construct()
     {
         $this->model = new User();
+    }
+
+
+    public function showLoginForm()
+    {
+        $this->render('auth/login');
+    }
+
+    public function showRegisterForm()
+    {
+        $this->render('auth/register');
     }
 
     /**

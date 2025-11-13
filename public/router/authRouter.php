@@ -3,12 +3,9 @@
 use App\Controllers\AuthController;
 use App\Controllers\GoogleAuthController;
 
-$router->get('/', function () {
-    require_once __DIR__ . '/../../app/Views/home.php';
-});
-
 $router->get('/login', function () {
-    require_once __DIR__ . '/../../app/Views/auth/login.php';
+    $authController = new AuthController();
+    $authController->showLoginForm();
 });
 
 $router->post('/login', function () {
@@ -17,7 +14,8 @@ $router->post('/login', function () {
 });
 
 $router->get('/register', function () {
-    require_once __DIR__ . '/../../app/Views/auth/register.php';
+    $authController = new AuthController();
+    $authController->showRegisterForm();
 });
 
 $router->post('/register', function () {

@@ -4,10 +4,9 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/bootstrap.php';
 
 define('APPNAME', 'Shop Tin Học');
-
 session_start();
 
 // Reset phiên sau 10p không hoạt động
@@ -29,16 +28,16 @@ if (isset($_SESSION['user'])) {
     $_SESSION['last_activity'] = time();
 }
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use Bramus\Router\Router;
 
 $router = new Router();
 
 
-require_once __DIR__ . '/router/authRouter.php';
-require_once __DIR__ . '/router/managerRouter.php';
-require_once __DIR__ . '/router/viewRouter.php';
+require_once __DIR__ . '/public/router/authRouter.php';
+require_once __DIR__ . '/public/router/managerRouter.php';
+require_once __DIR__ . '/public/router/viewRouter.php';
 
 
 $router->run();
