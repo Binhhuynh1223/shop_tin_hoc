@@ -12,7 +12,8 @@ $router->get('/', function () {
 
 // Product
 $router->get('/products', function () {
-    require_once __DIR__ . '/../../app/Views/products.php';
+    $controller = new ProductController();
+    $controller->index();
 });
 
 $router->get('/products/search', function () {
@@ -21,25 +22,24 @@ $router->get('/products/search', function () {
 });
 
 $router->get('/product/{id}', function ($id) {
-    $_GET['id'] = $id;
-    require_once __DIR__ . '/../../app/Views/product_detail.php';
+    $controller = new ProductController();
+    $controller->show($id);
 });
 
 $router->get('/products/{category}/{brand}', function ($category, $brand) {
-    $_GET['category'] = $category;
-    $_GET['brand'] = $brand;
-    require_once __DIR__ . '/../../app/Views/products.php';
+    $controller = new ProductController();
+    $controller->filter($category, $brand);
 });
 
 $router->get('/products/{category}', function ($category) {
-    $_GET['category'] = $category;
-    require_once __DIR__ . '/../../app/Views/products.php';
+    $controller = new ProductController();
+    $controller->filter($category);
 });
 
 
 $router->get('/products/{brand}', function ($brand) {
-    $_GET['brand'] = $brand;
-    require_once __DIR__ . '/../../app/Views/products.php';
+    $controller = new ProductController();
+    $controller->filter(null, $brand);
 });
 
 $router->post('/product/(\d+)/review', function ($id) {
@@ -96,7 +96,8 @@ $router->post('/cart/remove/{cart_item_id}', function ($cart_item_id) {
 
 // Profile
 $router->get('/profile', function () {
-    require_once __DIR__ . '/../../app/Views/profile.php';
+    $controller = new ProfileController();
+    $controller->index();
 });
 
 $router->post('/profile/update', function () {

@@ -13,6 +13,13 @@ class ProfileController extends BaseController
         $this->model = new User();
     }
 
+    public function index()
+    {
+        \App\Middleware\AuthMiddleware::requireAuth();
+
+        $this->render('profile');
+    }
+
     public function update()
     {
         \App\Middleware\AuthMiddleware::requireAuth();

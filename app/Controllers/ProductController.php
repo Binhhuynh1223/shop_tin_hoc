@@ -16,23 +16,24 @@ class ProductController extends BaseController
 
     public function index()
     {
-        $products = $this->model->getAll();
-        include __DIR__ . '/../Views/products.php';
+        $this->render('products');
     }
 
-    public function getAll()
+    public function show($id)
     {
-        $data = $_GET;
-        $ok = $this->model->getAll($data);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($ok);
+        $_GET['id'] = $id;
+        $this->render('product_detail');
     }
 
-    public function getById($id)
+    public function filter($category = null, $brand = null)
     {
-        $ok = $this->model->get($id);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($ok);
+        if ($category) {
+            $_GET['category'] = $category;
+        }
+        if ($brand) {
+            $_GET['brand'] = $brand;
+        }
+        $this->render('products');
     }
 
     /**

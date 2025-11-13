@@ -14,21 +14,6 @@ class UserController extends BaseController
         $this->model = new User();
     }
 
-    public function getAll()
-    {
-        $data = $_GET;
-        $ok = $this->model->getAll($data);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($ok);
-    }
-
-    public function getById($id)
-    {
-        $ok = $this->model->get($id);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($ok);
-    }
-
     /**
      * Tạo mới User
      */
