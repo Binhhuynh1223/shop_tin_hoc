@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shop_tin_hoc_app
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-shop_tin_hoc}
+      DB_USER: ${DB_USER:-shop_user}
+      DB_PASS: ${DB_PASS:-secret}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      VNP_TMN_CODE: ${VNP_TMN_CODE:-}
+      VNP_HASH_SECRET: ${VNP_HASH_SECRET:-}
+      VNP_URL: ${VNP_URL:-}
+      VNP_RETURN_URL: ${VNP_RETURN_URL:-/order/vnpay_return}
+      VNP_IPN_URL: ${VNP_IPN_URL:-/order/vnpay_ipn}
+      GOOGLE_URL: ${GOOGLE_URL:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      - ./public/images:/var/www/html/public/images
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: shop_tin_hoc_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-rootsecret}
+      MYSQL_DATABASE: ${DB_NAME:-shop_tin_hoc}
+      MYSQL_USER: ${DB_USER:-shop_user}
+      MYSQL_PASSWORD: ${DB_PASS:-secret}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db_data:

@@ -127,3 +127,56 @@ Dự án sử dụng 7 bảng chính:
 * `orders`: Lưu thông tin đơn hàng (trạng thái, địa chỉ, tổng tiền...).
 * `order_items`: Lưu các sản phẩm trong một đơn hàng (snapshot giá tại thời điểm mua).
 * `reviews`: Lưu các đánh giá sản phẩm (liên kết với `user_id` và `product_id`).
+
+---
+
+## CI/CD với GitHub Actions
+
+Dự án đã được tích hợp sẵn CI/CD pipeline qua **GitHub Actions** bao gồm 2 workflow:
+
+### 1. CI Workflow (`.github/workflows/ci.yml`)
+
+Tự động chạy mỗi khi có **push** hoặc **pull request** vào nhánh `main`/`master`:
+* Kiểm tra tính hợp lệ của `composer.json`.
+* Cài đặt các thư viện qua Composer.
+* Kiểm tra cú pháp PHP (PHP Lint) cho toàn bộ source code.
+
+### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
+
+Tự động deploy lên server khi có **push** vào nhánh `main`/`master`.
+
+**Cấu hình GitHub Secrets cần thiết** (vào `Settings > Secrets and variables > Actions`):
+
+| Secret | Mô tả |
+|---|---|
+| `SSH_HOST` | Địa chỉ IP hoặc hostname của server |
+| `SSH_USER` | Tên user SSH trên server |
+| `SSH_PRIVATE_KEY` | Private key SSH để xác thực |
+| `SSH_PORT` | Cổng SSH (thường là `22`) |
+| `DEPLOY_PATH` | Đường dẫn thư mục dự án trên server |
+
+---
+
+## Triển khai với Docker
+
+Dự án hỗ trợ triển khai qua **Docker** và **Docker Compose**, phù hợp với các dịch vụ cloud như AWS, GCP, DigitalOcean, Railway, v.v.
+
+### Chạy với Docker Compose (khuyến nghị)
+
+1. Tạo file `.env` từ `.env.example` và điền thông tin cấu hình.
+2. Khởi động ứng dụng:
+    ```bash
+    docker-compose up -d --build
+    ```
+3. Truy cập ứng dụng tại `http://localhost:8080`.
+4. Dừng ứng dụng:
+    ```bash
+    docker-compose down
+    ```
+
+### Build Docker Image thủ công
+
+```bash
+docker build -t shop_tin_hoc .
+docker run -d -p 8080:80 --env-file .env shop_tin_hoc
+```
